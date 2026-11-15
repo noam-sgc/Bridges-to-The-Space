@@ -84,3 +84,4 @@ Sprites derivados de `.claude/Astronauta*.png`; trilha sonora com os MP3 da past
 - **Hidroponia traduzida**: "Colher", "Limpar bandeja", "Cuidar de todas", "estragou" e os demais textos da estufa agora mudam de idioma.
 - **Desempenho**: a interface é reconstruída até cerca de 10 vezes por segundo (ou logo após um clique/tecla), em vez de a cada quadro. Isso reduz o travamento em computadores mais lentos.
 - **Textos traduzidos**: "adquirido" (loja) agora aparece como "purchased"/"adquirido"; avisos de combustível, pouso, comida, remédios, fundo de contingência, hibernação, narrações de chegada e os textos da estufa passam a sair em inglês e espanhol.
+- **Volume da narração**: em ⚙ Configurações (e no botão ⚙ do jogo), o controle "Volume da narração" ajusta só a voz do computador de bordo e dos tripulantes, sem mexer na música e nos efeitos.

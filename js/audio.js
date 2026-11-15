@@ -125,7 +125,7 @@ const Narrator = {
     try {
       const u = new SpeechSynthesisUtterance(parts[i]);
       if (!this.voice || !this.voice.lang.toLowerCase().startsWith(I18n.speech().slice(0, 2))) this.pickVoice();
-      u.lang = (this.voice && this.voice.lang) || I18n.speech(); u.rate = (Save.data.settings.voiceRate || 1) * 0.98; u.pitch = (opts && opts.pitch) || 1;
+      u.lang = (this.voice && this.voice.lang) || I18n.speech(); u.rate = (Save.data.settings.voiceRate || 1) * 0.98; u.volume = Math.max(0, Math.min(1, Save.data.settings.voiceVol != null ? Save.data.settings.voiceVol : 1)); u.pitch = (opts && opts.pitch) || 1;
       if (this.voice) u.voice = this.voice;
       u.onstart = () => { if (tok !== this._tok) return; this.speaking = true; Music.refreshVolume(); };
       u.onend = u.onerror = () => this._next(parts, i + 1, tok, opts);
