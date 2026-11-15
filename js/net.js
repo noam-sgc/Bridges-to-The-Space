@@ -175,7 +175,7 @@ const Net = {
         if (this.forwardToCmd(m)) return;
         const p = this.players[m.pid]; if (!p || !S) return;
         if (typeof m.type !== 'string' || !ACTIONS[m.type]) return;
-        const blocked = S.scene === 'colony' ? [] : ['cruise', 'fund', 'trade', 'ration', 'hibernate']; // decisões de gestão do Comandante; avançar de etapa (destino, pouso, migração) qualquer jogador pode
+        const blocked = S.scene === 'colony' ? [] : ['cruise', 'fund', 'trade', 'ration', 'hibernate', 'orbitBurn', 'orbitWait']; // decisões de gestão do Comandante; avançar de etapa (destino, pouso, migração) qualquer jogador pode
         if (blocked.includes(m.type)) return; // decisões do Comandante
         applyAction(m.type, m.p, p.role);
         break;

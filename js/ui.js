@@ -273,7 +273,7 @@ function setupScreen() {
     const locked = it.req && !st[list].includes(it.req);
     const slotFull = list === 'modules' && !on && slots + it.slots > SLOTS;
     const cant = !on && (it.pts > left || locked || slotFull);
-    return `<button class="opt ${on ? 'on' : ''} ${cant ? 'cant' : ''}" data-ui="setToggle" data-arg="${list}:${it.id}"><b>${esc(it.name)}</b><span>${esc(it.desc)}</span><em>${it.pts} pts${it.slots ? ' · ' + it.slots + ' slot' + (it.slots > 1 ? 's' : '') : ''}${locked ? ' · requer anterior' : ''}${extra}</em></button>`;
+    return `<button class="opt ${on ? 'on' : ''} ${cant ? 'cant' : ''}" data-ui="setToggle" data-arg="${list}:${it.id}"><b>${esc(it.name)}</b><span>${esc(it.desc)}</span><em>${it.pts} pts${typeof massOfItem === 'function' && massOfItem(it.id) ? ' · ' + massOfItem(it.id) + ' kg' : ''}${it.slots ? ' · ' + it.slots + ' slot' + (it.slots > 1 ? 's' : '') : ''}${locked ? ' · requer anterior' : ''}${extra}</em></button>`;
   };
   let body = '';
   switch (step.id) {

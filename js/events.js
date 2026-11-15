@@ -786,7 +786,7 @@ ACTIONS.chooseSite = p => { S.planet.site = p.id; };
 ACTIONS.land = () => {
   if (!S.planet.site) return toast('Escolha um local de pouso.', 'warn');
   const site = LANDING_SITES.find(s => s.id === S.planet.site);
-  const need = has('pouso') ? 40 : 80;
+  const need = landingFuel();
   const reasons = [];
   if (S.res.combustivel < need) reasons.push(`Combustível insuficiente para o pouso (precisa de ${need} kg).`);
   let score = 0; const det = [];

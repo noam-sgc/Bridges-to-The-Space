@@ -589,3 +589,7 @@ img.pxe { width: 1.15em; height: 1.15em; image-rendering: pixelated; image-rende
 .thc.on { border-color: var(--yellow); box-shadow: 0 0 12px rgba(255, 210, 63, 0.45); } .thc.on em { color: var(--yellow); }
 .thc:hover { border-color: var(--cyan); }
 .evp.thermal.simple .thres p { margin: 0.25em 0; }
+.massbox{font-size:.82em;margin:6px 0 8px;padding:6px;border:1px solid rgba(95,208,255,.3);border-radius:4px}
+.massbar{height:6px;background:#1a2342;margin:3px 0 5px}.massbar i{display:block;height:100%}
+.orbitbox{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.orbitinfo{flex:1;min-width:180px;font-size:.85em}
+.quizcats{margin:8px 0}

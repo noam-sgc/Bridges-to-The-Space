@@ -7,6 +7,7 @@
 
 // Q(lição, fonte, pergunta[pt,en,es], opções[[pt,en,es]...], índice correto, explicação[pt,en,es])
 const Q = (l, src, q, o, a, e) => ({ l, src, q: K(...q), o: o.map(x => K(...x)), a, e: K(...e) });
+const Qc = (cat, src, q, o, a, e) => Object.assign(Q('', src, q, o, a, e), { cat });
 const QUIZ_BANK = [
   Q('controle:0', 'Space Communications and Navigation (DSN)',
     ['Quais são os 3 complexos da Rede de Espaço Profundo (DSN)?', 'Which are the 3 complexes of Deep Space Network (DSN)?', '¿Cuáles son los 3 complejos de la Red del Espacio Profundo (DSN)?'],
@@ -78,27 +79,78 @@ const QUIZ_BANK = [
     ['É exatamente a ideia do seu fundo de contingência no jogo!', 'This is exactly the idea behind your contingency fund in the game!', '¡Es exactamente la idea de su fondo de contingencia en el juego!']),
 ];
 
+
+// ---------- perguntas ligadas às regras da nave (Regulação Térmica, água, sistemas, montagem) ----------
+QUIZ_BANK.push(
+  Qc('ship', 'Thermal control', ['Na fase de Regulação Térmica, qual faixa de temperatura interna a tripulação precisa manter?', 'In the Thermal Regulation phase, what internal temperature range must the crew keep?', 'En la fase de Regulación Térmica, ¿qué rango de temperatura interna debe mantener la tripulación?'],
+    [['Entre 18 °C e 26 °C', 'Between 18 °C and 26 °C', 'Entre 18 °C y 26 °C'], ['Entre 0 °C e 10 °C', 'Between 0 °C and 10 °C', 'Entre 0 °C y 10 °C'], ['Entre 30 °C e 40 °C', 'Between 30 °C and 40 °C', 'Entre 30 °C y 40 °C'], ['Qualquer uma', 'Any range', 'Cualquiera']], 0,
+    ['Na Terra a atmosfera regula a temperatura de graça; numa nave tudo isso custa energia, combustível e tempo.', 'On Earth the atmosphere regulates temperature for free; on a ship all of it costs energy, propellant and time.', 'En la Tierra la atmósfera regula la temperatura gratis; en una nave todo cuesta energía, combustible y tiempo.']),
+  Qc('ship', 'Thermal control', ['Por que o lado da nave voltado para a estrela e o lado na sombra podem ter mais de 200 °C de diferença?', 'Why can the star-facing side and the shadow side of a ship differ by more than 200 °C?', '¿Por qué el lado de la nave hacia la estrella y el lado en sombra pueden diferir en más de 200 °C?'],
+    [['Porque no vácuo não há ar para espalhar o calor', 'Because in a vacuum there is no air to spread the heat', 'Porque en el vacío no hay aire que reparta el calor'], ['Porque a nave é de metal fino', 'Because the ship is thin metal', 'Porque la nave es de metal fino'], ['Porque a estrela pisca', 'Because the star blinks', 'Porque la estrella parpadea'], ['Por causa do som', 'Because of sound', 'Por el sonido']], 0,
+    ['O calor só sai da nave por radiação. Por isso as naves têm radiadores e giram devagar.', 'Heat only leaves a ship by radiation. That is why ships have radiators and rotate slowly.', 'El calor solo sale de la nave por radiación. Por eso las naves tienen radiadores y giran despacio.']),
+  Qc('ship', 'Thermal control', ['Para que serve girar lentamente a nave (a técnica de "assar espetinho")?', 'What is slowly rotating the ship (the "rotisserie" technique) for?', '¿Para qué sirve girar lentamente la nave (la técnica del "asado")?'],
+    [['Distribuir o calor do Sol por todos os lados', 'Spreading the Sun\'s heat over every side', 'Repartir el calor del Sol por todos los lados'], ['Gerar gravidade artificial para plantas', 'Making artificial gravity for plants', 'Generar gravedad artificial para plantas'], ['Economizar oxigênio', 'Saving oxygen', 'Ahorrar oxígeno'], ['Ouvir o rádio melhor', 'Hearing the radio better', 'Oír mejor la radio']], 0,
+    ['Assim nenhum lado esquenta ou congela demais. A manobra gasta combustível e exige um bom navegador.', 'That way no side overheats or freezes. The maneuver burns propellant and needs a good navigator.', 'Así ningún lado se calienta o congela demasiado. La maniobra gasta combustible y requiere un buen navegante.']),
+  Qc('ship', 'Water recovery', ['Quais são as etapas de descontaminação da água do jogo?', 'What are the water decontamination steps in the game?', '¿Cuáles son las etapas de descontaminación del agua del juego?'],
+    [['Destilação, Filtração, Oxidação e Desinfecção', 'Distillation, Filtration, Oxidation and Disinfection', 'Destilación, Filtración, Oxidación y Desinfección'], ['Fervura, Congelamento, Sal e Sol', 'Boiling, Freezing, Salt and Sun', 'Hervor, Congelación, Sal y Sol'], ['Só Filtração', 'Filtration only', 'Solo Filtración'], ['Adicionar açúcar', 'Adding sugar', 'Añadir azúcar']], 0,
+    ['Num sistema de ciclo fechado, urina, suor e condensação voltam a ser água potável: quase 100% é reaproveitado.', 'In a closed-loop system, urine, sweat and condensation become drinking water again: nearly 100% is reused.', 'En un sistema de ciclo cerrado, orina, sudor y condensación vuelven a ser agua potable: casi el 100 % se reaprovecha.']),
+  Qc('ship', 'ISS Environmental Control', ['Na Estação Espacial, que parte da água usada (incluindo urina e suor) é recuperada?', 'On the Space Station, how much of the used water (including urine and sweat) is recovered?', 'En la Estación Espacial, ¿qué parte del agua usada (incluida orina y sudor) se recupera?'],
+    [['Cerca de 90% ou mais', 'About 90% or more', 'Cerca del 90 % o más'], ['Quase nada', 'Almost none', 'Casi nada'], ['Cerca de 10%', 'About 10%', 'Cerca del 10 %'], ['Só a água da chuva', 'Only rainwater', 'Solo agua de lluvia']], 0,
+    ['Cada litro reaproveitado é um litro que não precisa ser lançado da Terra — e cada quilo lançado custa muito.', 'Every liter reused is a liter that does not have to be launched from Earth — and every launched kilo is expensive.', 'Cada litro reaprovechado es un litro que no hace falta lanzar desde la Tierra — y cada kilo lanzado cuesta mucho.']),
+  Qc('ship', 'Pontes-01b ship rules', ['No jogo, qual destes sistemas sofre DANO ALTO quando atingido?', 'In the game, which of these systems takes HIGH damage when hit?', 'En el juego, ¿cuál de estos sistemas sufre DAÑO ALTO al ser golpeado?'],
+    [['Sistema de Propulsão', 'Propulsion system', 'Sistema de Propulsión'], ['Casco e Blindagem', 'Hull and shielding', 'Casco y Blindaje'], ['Sistema de Comunicação', 'Communication system', 'Sistema de Comunicación'], ['Módulos de Acoplamento', 'Docking modules', 'Módulos de Acoplamiento']], 0,
+    ['Propulsão, tanques e suporte à vida são alto; aviônica, escudo térmico, comunicação e acoplamento são médio; o casco é baixo.', 'Propulsion, tanks and life support are high; avionics, thermal shield, communications and docking are medium; the hull is low.', 'Propulsión, tanques y soporte vital son alto; aviónica, escudo térmico, comunicación y acoplamiento son medio; el casco es bajo.']),
+  Qc('ship', 'Pontes-01b ship rules', ['O que acontece com os pontos de verba que sobram na montagem da nave?', 'What happens to the budget points left over when building the ship?', '¿Qué pasa con los puntos de presupuesto que sobran al montar la nave?'],
+    [['Viram o fundo de contingência para emergências', 'They become the contingency fund for emergencies', 'Se vuelven el fondo de contingencia para emergencias'], ['Somem', 'They vanish', 'Desaparecen'], ['Viram créditos da Loja', 'They become Shop credits', 'Se vuelven créditos de la Tienda'], ['Compram mais tripulantes', 'They buy more crew', 'Compran más tripulantes']], 0,
+    ['É o dilema real de engenharia: gastar tudo para sair forte ou guardar folga para o imprevisto.', 'It is the real engineering dilemma: spend everything to leave strong or keep slack for surprises.', 'Es el dilema real de ingeniería: gastar todo para salir fuerte o guardar margen para lo imprevisto.']),
+  Qc('ship', 'Pontes-01b ship rules', ['Quantos tripulantes tem a nave e quem NÃO pode morrer sem a missão falhar?', 'How many crew does the ship have and who must NOT die or the mission fails?', '¿Cuántos tripulantes tiene la nave y quién NO puede morir o la misión falla?'],
+    [['6 tripulantes; o Comandante', '6 crew; the Commander', '6 tripulantes; el Comandante'], ['4 tripulantes; o cozinheiro', '4 crew; the cook', '4 tripulantes; el cocinero'], ['10 tripulantes; o navegador', '10 crew; the navigator', '10 tripulantes; el navegante'], ['2 tripulantes; ninguém', '2 crew; nobody', '2 tripulantes; nadie']], 0,
+    ['Também falha se restarem menos de 3 vivos. Cada morte tira a função do tripulante e derruba a moral de todos.', 'It also fails if fewer than 3 remain alive. Each death removes the crew member\'s role and drops everyone\'s morale.', 'También falla si quedan menos de 3 con vida. Cada muerte quita la función del tripulante y baja la moral de todos.']),
+  Qc('ship', 'Pontes-01b ship rules', ['Qual módulo deixa o tripulante quase sem consumir recursos, mas indisponível?', 'Which module lets a crew member consume almost no resources, but be unavailable?', '¿Qué módulo deja al tripulante casi sin consumir recursos, pero no disponible?'],
+    [['Câmara de hibernação', 'Hibernation chamber', 'Cámara de hibernación'], ['Cúpula de observação', 'Observation dome', 'Cúpula de observación'], ['Oficina 3D', '3D workshop', 'Taller 3D'], ['Radar', 'Radar', 'Radar']], 0,
+    ['A hibernação reduz o consumo e protege, e combina bem com a enfermaria — mas o tripulante não trabalha.', 'Hibernation cuts consumption and protects, and pairs well with the infirmary — but the crew member does not work.', 'La hibernación reduce el consumo y protege, y combina con la enfermería — pero el tripulante no trabaja.']),
+);
+
 const QUIZ_N = 8;
+// categorias do Quiz (cada pergunta tem 'cat'; as antigas herdam pela lição/tema)
+const QUIZ_CATS = [
+  { id: 'space', icon: '🪐', n: K('Espaço real', 'Real space', 'Espacio real') },
+  { id: 'earth', icon: '🌍', n: K('Terra e clima', 'Earth and climate', 'Tierra y clima') },
+  { id: 'mission', icon: '🛰', n: K('Missões', 'Missions', 'Misiones') },
+  { id: 'ship', icon: '🚀', n: K('Nave e sistemas', 'Ship and systems', 'Nave y sistemas') },
+  { id: 'mass', icon: '⚖', n: K('Massa e foguetes', 'Mass and rockets', 'Masa y cohetes') },
+  { id: 'orbit', icon: '🌀', n: K('Órbitas', 'Orbits', 'Órbitas') },
+];
+function qCat(q) {
+  if (q.cat) return q.cat;
+  const l = q.l || '';
+  if (/^(ev|gp):/.test(l)) return 'ship';
+  if (/^missao:/.test(l)) return 'mission';
+  if (/^casa:/.test(l)) return 'earth';
+  return 'space';
+}
+const quizPool = cat => QUIZ_BANK.filter(q => !cat || qCat(q) === cat);
 const quizLearned = l => !!(l && Save.data.learned && Save.data.learned[l]);
 function learnMark(key) { if (!key) return; Save.data.learned = Save.data.learned || {}; if (!Save.data.learned[key]) { Save.data.learned[key] = 1; Save.write(); } }
 
-function quizStart() {
-  const qs = shuffle(QUIZ_BANK.slice()).slice(0, QUIZ_N).map(q => ({ q, ord: shuffle(q.o.map((_, i) => i)) }));
-  U.quiz = { qs, i: 0, ok: 0, earned: 0, picked: null, done: false };
+function quizStart(cat) {
+  const qs = shuffle(quizPool(cat)).slice(0, QUIZ_N).map(q => ({ q, ord: shuffle(q.o.map((_, i) => i)) }));
+  U.quiz = { qs, i: 0, ok: 0, earned: 0, picked: null, done: false, cat: cat || '' };
 }
 function quizScreen() {
   const Z = U.quiz;
   if (!Z) return `<div class="panel center wide"><h2>🛰 ${esc(L(K('QUIZ', 'QUIZ', 'QUIZ')))} <span class="credits">✦ ${Save.data.credits}</span></h2>
     <p>${L(K('Responda perguntas com dados oficiais e ganhe <b>créditos</b> para usar na Loja e na missão. Acertos de assuntos que você aprendeu na cidade ou nos desafios da viagem rendem bônus. Visite o <b>Centro de Design de Missões</b> na cidade para aprender mais!', 'Answer questions with official data and earn <b>credits</b> for the Shop and your mission. Right answers on topics you learned in the city or during the trip challenges earn a bonus. Visit the <b>Mission Design Center</b> in the city to learn more!', '¡Responda preguntas con datos oficiales y gane <b>créditos</b> para la Tienda y la misión! Los aciertos en temas aprendidos en la ciudad o en los desafíos del viaje dan bonificación. ¡Visite el <b>Centro de Diseño de Misiones</b> en la ciudad para aprender más!'))}</p>
     <p class="small muted">${esc(L(K('Cada acerto: +5 ✦ (primeira vez) ou +1 ✦ (repetida) · +2 ✦ se você aprendeu o tema na cidade ou na viagem · Rodada perfeita: +5 ✦', 'Each right answer: +5 ✦ (first time) or +1 ✦ (repeat) · +2 ✦ if you learned the topic in the city or on the trip · Perfect round: +5 ✦', 'Cada acierto: +5 ✦ (primera vez) o +1 ✦ (repetida) · +2 ✦ si aprendió el tema en la ciudad o en el viaje · Ronda perfecta: +5 ✦')))}</p>
-    <div class="row"><button class="btn primary big" data-ui="quizStart">▶ ${esc(L(K('Começar (8 perguntas)', 'Start (8 questions)', 'Empezar (8 preguntas)')))}</button><button class="btn" data-ui="title">◀ ${esc(L('Voltar'))}</button></div></div>`;
+    <div class="opts quizcats"><button class="opt rec" data-ui="quizStart" data-arg=""><b>🎲 ${esc(L(K('Misto', 'Mixed', 'Mixto')))}</b><span>${QUIZ_BANK.length} ${esc(L(K('perguntas', 'questions', 'preguntas')))}</span></button>${QUIZ_CATS.map(c => { const pool = quizPool(c.id), done = pool.filter(q => (Save.data.quizDone || {})[q.q.pt]).length; return `<button class="opt" data-ui="quizStart" data-arg="${c.id}"><b>${c.icon} ${esc(L(c.n))}</b><span>${done}/${pool.length} ${esc(L(K('acertadas', 'solved', 'acertadas')))}</span></button>`; }).join('')}</div>
+    <div class="row"><button class="btn" data-ui="title">◀ ${esc(L('Voltar'))}</button></div></div>`;
   if (Z.done) {
     const perfect = Z.ok === Z.qs.length;
     return `<div class="panel center wide"><h2>🛰 ${esc(L(K('Resultado', 'Result', 'Resultado')))}</h2>
       <div class="bignum">${Z.ok}/${Z.qs.length}</div>
       <p class="credits big">+${Z.earned} ✦ ${esc(L(K('créditos', 'credits', 'créditos')))}${perfect ? ' 🏆' : ''}</p>
       <p class="small muted">${esc(L(K('Total na carteira:', 'Wallet total:', 'Total en la cartera:')))} ✦ ${Save.data.credits}</p>
-      <div class="row"><button class="btn primary" data-ui="quizStart">↻ ${esc(L(K('Jogar de novo', 'Play again', 'Jugar de nuevo')))}</button><button class="btn" data-ui="shop">✦ ${esc(L('LOJA'))}</button><button class="btn" data-ui="quizExit">◀ ${esc(L('Voltar'))}</button></div></div>`;
+      <div class="row"><button class="btn primary" data-ui="quizStart" data-arg="${esc(Z.cat || '')}">↻ ${esc(L(K('Jogar de novo', 'Play again', 'Jugar de nuevo')))}</button><button class="btn" data-ui="shop">✦ ${esc(L('LOJA'))}</button><button class="btn" data-ui="quizExit">◀ ${esc(L('Voltar'))}</button></div></div>`;
   }
   const it = Z.qs[Z.i], q = it.q, ans = it.ord.indexOf(q.a);
   const opts = it.ord.map((oi, k) => {
@@ -113,7 +165,7 @@ function quizScreen() {
     <div class="row"><button class="btn small" data-ui="quizExit">✕ ${esc(L(K('Sair do quiz', 'Quit quiz', 'Salir del quiz')))}</button></div></div>`;
 }
 UIH.quiz = () => { U.screen = 'quiz'; U.quiz = null; S = S && S.scene === 'end' ? null : S; };
-UIH.quizStart = () => { quizStart(); U.screen = 'quiz'; };
+UIH.quizStart = cat => { quizStart(typeof cat === 'string' ? cat : ''); U.screen = 'quiz'; };
 UIH.quizExit = () => { U.quiz = null; UIH.title(); };
 UIH.quizPick = k => {
   const Z = U.quiz; if (!Z || Z.picked !== null || Z.done) return;

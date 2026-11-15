@@ -458,7 +458,7 @@ function simulate(dt) {
   const stopped = S.stage !== 1 || (S.event && S.event.stopShip);
   if (!stopped) {
     const route = routeObj(), cr = cruiseObj();
-    let fuel = 8 * route.fuel * cr.fuel * (sysHp('propulsao') < 50 ? 1.3 : 1) * (has('motorEf') ? 0.85 : 1);
+    let fuel = 8 * route.fuel * cr.fuel * (sysHp('propulsao') < 50 ? 1.3 : 1) * (has('motorEf') ? 0.85 : 1) * massFactor() * (S.dvShort ? 1.2 : 1); // massa: nave pesada gasta mais
     if (S.res.combustivel > 0) {
       addRes('combustivel', -fuel * f, 'Propulsão de cruzeiro');
       let sp = cr.speed * S.speedMod * (sysHp('avionica') < 40 ? 0.8 : 1);
@@ -568,7 +568,7 @@ function checkStuck(dt) {
     if (sc === 'station' && S.res.combustivel < 1) return fail('Sem combustível na Estação Ponte-Alfa: a nave não consegue mais partir.');
   }
   if (sc === 'migration') {
-    const need = has('pouso') ? 40 : 80;
+    const need = landingFuel();
     if (S.res.combustivel < need) return planetEnding('Sem combustível para pousar, a tripulação ficou em órbita de Pontes-01b enviando dados e preparando o caminho para as próximas naves.');
   }
   if (sc === 'colony' && S.colony) {
