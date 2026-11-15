@@ -10,12 +10,29 @@ function startEvent(type) {
   const def = EV[type]; if (!def) return;
   const info = EVENT_INFO[type];
   S.eventN++;
-  S.event = { id: S.eventN, type, phase: 'warn', t: def.time || 60, dur: def.time || 60, steps: [], data: {}, puzzle: null, result: null, warnT: 25, stopShip: false };
+  S.event = { id: S.eventN, type, phase: 'warn', t: def.time || 60, dur: def.time || 60, steps: [], data: {}, puzzle: null, result: null, warnT: 3, stopShip: false }; // o desafio começa sozinho depois de um aviso curto
   S.failsInPhase = 0;
   if (def.setup) def.setup(S.event);
+  trimSteps(S.event);
   S.alarm = 1;
   logMsg(`⚠ ALERTA: ${info.title}`, 'bad');
   S.v++;
+}
+// o principal logo: em desafios com quebra-cabeça, os passos de "esperar a barra"
+// antes dele saem (o quebra-cabeça abre direto). Na jornada curta (partida rápida)
+// só fica o quebra-cabeça, e os passos de barra que sobram ficam pela metade.
+const NO_TRIM = { traje: 1, brecha: 1, lixo: 1, tempestade: 1, termico: 1 };
+function trimSteps(ev) {
+  const short = S.journey === 'curta';
+  if (short && ev.type === 'termico' && S.thermal) { S.thermal.D = 40; ev.t = ev.dur = 40; }
+  if (!ev.steps || !ev.steps.length) return;
+  if (!NO_TRIM[ev.type]) {
+    const pi = ev.steps.findIndex(s => s.puzzle);
+    if (pi > 0) { if (ev.type === 'asteroides') ev.data.shield = true; ev.steps = ev.steps.slice(pi); }
+    if (short && pi >= 0) ev.steps = ev.steps.filter(s => s.puzzle);
+    else if (short) ev.steps = ev.steps.filter(s => !s.optional).slice(0, 1); // sem quebra-cabeça: um passo só
+  }
+  if (short) for (const s of ev.steps) if (!s.puzzle) s.dur = Math.max(0.8, s.dur * 0.5);
 }
 function goEvent() {
   const ev = S.event; if (!ev || ev.phase !== 'warn') return;
@@ -106,6 +123,11 @@ ACTIONS.doStep = (p, actor) => {
   // quem apertar primeiro fica com o passo: os outros jogadores não podem repetir (nem resolver o mesmo quebra-cabeça)
   if (S.crew.some(o => o.id !== actor.id && o.alive && ((o.task && o.task.key === 'evStep' && o.task.data && o.task.data.step === step.id) || (ev.puzzle && ev.puzzle.step === step.id && ev.puzzle.by === o.id)))) return toast('Outro tripulante já está cuidando deste passo.', 'warn');
   if (step.role && !roleMatches(actor, step.role) && step.roleOnly) return toast('Este passo precisa de um ' + step.role + '.', 'warn');
+  if (actor.task && actor.task.key === 'evStep' && actor.task.data && actor.task.data.step === step.id) return; // já fazendo: apertar de novo não reinicia
+  if (step.puzzle && actor.owner && actor.owner !== 'bot') { // um clique e o desafio aparece
+    if (ev.puzzle && ev.puzzle.step === step.id) return;
+    ev.puzzle = makePuzzle(step.puzzle, ev, step); ev.puzzle.step = step.id; ev.puzzle.by = actor.id; S.v++; return;
+  }
   actor.task = { station: step.station, dur: step.dur, t: 0, label: step.label, key: 'evStep', data: { ev: ev.id, step: step.id }, ev: ev.id };
 };
 ACTIONS.callRole = (p) => {
@@ -153,10 +175,11 @@ function botSolves(ev, step, c) {
 // ---------- quebra-cabeças ----------
 function makePuzzle(kind, ev, step) {
   if (kind === 'filtros') {
-    const n = 6; return { kind, n, bad: Math.floor(Math.random() * n), seen: [], swapped: false };
+    const n = 6; return { kind, n, bad: Math.floor(Math.random() * n), seen: [], swapped: false, flow: Array.from({ length: n }, () => 70 + Math.floor(Math.random() * 30)) };
   }
   if (kind === 'mapa') {
-    const tiles = []; for (let i = 0; i < 9; i++) tiles.push(1 + Math.floor(Math.random() * 3)); // 0 = alinhado
+    // 4 setores tortos; um clique endireita o setor
+    const tiles = Array(9).fill(0); shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8]).slice(0, 4).forEach(i => { tiles[i] = 1 + Math.floor(Math.random() * 3); });
     return { kind, tiles };
   }
   if (kind === 'radio') {
@@ -177,6 +200,8 @@ function puzzleDone(ev) {
   completeStep(ev, step, c);
 }
 
+// jornada curta (partida rápida): depois de um erro, o painel mostra a solução
+const quickHelp = pz => { if (S.journey === 'curta') pz.hint = true; };
 ACTIONS.puzzle = (p, actor) => {
   const ev = S.event; if (!ev || !ev.puzzle) return;
   const pz = ev.puzzle;
@@ -184,22 +209,26 @@ ACTIONS.puzzle = (p, actor) => {
   switch (pz.kind) {
     case 'filtros':
       if (p.op === 'inspect' && !pz.seen.includes(p.i)) { pz.seen.push(p.i); ev.t -= 2; }
+      if (p.op === 'swap' && !pz.seen.includes(p.i)) pz.seen.push(p.i);
       if (p.op === 'swap') {
         if (p.i === pz.bad) { toast('Filtro entupido trocado pelo reserva!', 'good'); puzzleDone(ev); }
-        else { toast('Esse filtro estava bom. Tempo perdido!', 'warn'); ev.t -= 6; }
+        else { toast('Esse filtro estava bom. Tempo perdido!', 'warn'); ev.t -= 6; quickHelp(pz); }
       }
       break;
     case 'mapa':
-      pz.tiles[p.i] = (pz.tiles[p.i] + 1) % 4;
+      if (pz.tiles[p.i] === 0) { ev.t -= 2; quickHelp(pz); break; } // já estava certo
+      pz.tiles[p.i] = 0;
       if (pz.tiles.every(t => t === 0)) { toast('Mapa estelar recalibrado!', 'good'); puzzleDone(ev); }
       break;
     case 'radio':
       if (p.op === 'tune') pz.freq = clamp(pz.freq + p.d, 0, 99);
+      if (p.op === 'set') pz.freq = clamp(+p.f, 0, 99);
       if (p.op === 'answer' && !pz.answered) {
         pz.answered = true;
         const msg = RADIO_MESSAGES[pz.msgIdx];
         ev.data.correct = p.answer === msg.answer;
         ev.data.msg = msg;
+        if (!ev.data.correct && S.journey === 'curta') toast('💡 ' + L('Resposta certa') + ': ' + T(msg.answer), 'warn');
         puzzleDone(ev);
       }
       break;
@@ -207,7 +236,7 @@ ACTIONS.puzzle = (p, actor) => {
       const correct = ['Destilação', 'Filtração', 'Oxidação', 'Desinfecção'];
       const nextOk = correct[pz.order.length];
       if (p.stage === nextOk) { pz.order.push(p.stage); if (pz.order.length === 4) { toast('Ordem correta! Processando a água...', 'good'); puzzleDone(ev); } }
-      else { toast(`Etapa fora de ordem (${p.stage}). O ciclo reiniciou.`, 'warn'); pz.order = []; ev.t -= 8; }
+      else { toast(`Etapa fora de ordem (${p.stage}). O ciclo reiniciou.`, 'warn'); pz.order = []; ev.t -= 8; quickHelp(pz); }
       break;
     }
     case 'remedio': {
@@ -218,11 +247,11 @@ ACTIONS.puzzle = (p, actor) => {
       }
       if (p.op === 'replace') { ACTIONS.replaceMeds(); }
       if (p.op === 'give') {
-        if (S.day > S.meds.validUntil) { toast('O remédio está vencido e não fez efeito! Troque o estoque primeiro.', 'bad'); ev.t -= 10; return; }
+        if (S.day > S.meds.validUntil) { toast('O remédio está vencido e não fez efeito! Troque o estoque primeiro.', 'bad'); ev.t -= 10; quickHelp(pz); S.v++; return; }
         if (S.res.medicos < 1) return toast('Sem recursos médicos!', 'bad');
         addRes('medicos', -1, 'Remédio');
         if (p.med === dis.med) { v.sickness = null; toast(`${v.name} tomou ${MEDICINES.find(m => m.id === p.med).name} e está se recuperando.`, 'good'); puzzleDone(ev); }
-        else { toast('Remédio errado. Os sintomas continuam.', 'warn'); moral(-1, v); ev.t -= 8; }
+        else { toast('Remédio errado. Os sintomas continuam.', 'warn'); moral(-1, v); ev.t -= 8; quickHelp(pz); }
       }
       break;
     }
@@ -563,19 +592,17 @@ ACTIONS.shelter = () => {
 };
 
 // ===================== REGULAÇÃO TÉRMICA =====================
-// Três controles simples para manter o interior entre 18 e 26 °C:
-// aquecedor (esquenta, gasta energia), resfriador (esfria, gasta energia)
-// e cortinas térmicas (fechadas barram o Sol e seguram o calor na sombra).
+// Só liga/desliga: aquecedor (esquenta) e resfriador (esfria) para manter
+// o interior entre 18 e 26 °C. Os dois gastam energia.
 const TH_CTRL = {
-  heat: { icon: '🔥', name: 'Aquecedor', what: 'Esquenta o interior. Use quando esfriar (na sombra).', cost: 'gasta energia' },
-  cool: { icon: '❄', name: 'Resfriador', what: 'Joga o calor para fora pelos radiadores. Use quando esquentar.', cost: 'gasta energia' },
-  shut: { icon: '🪟', name: 'Cortinas térmicas', what: 'Fechadas, barram o calor do Sol e seguram o calor na sombra.', cost: 'não gasta energia' },
+  heat: { icon: '🔥', name: 'Aquecedor' },
+  cool: { icon: '❄', name: 'Resfriador' },
 };
 const TH_KWH = { heat: 0.25, cool: 0.2 }; // kWh por segundo ligado
 
 EV.termico = {
   time: 60, points: 0, noTimer: true, customEnd: true,
-  tip: 'Feche as cortinas e ligue o resfriador no calor; na sombra, aquecedor.', ai: 'fechar as cortinas e ligar o resfriador no pico de calor.',
+  tip: 'No calor, ligue o resfriador; na sombra, ligue o aquecedor.', ai: 'ligar o resfriador no pico de calor.',
   setup(ev) {
     const D = 60; // fase térmica de 1 minuto
     ev.t = ev.dur = D;
@@ -586,7 +613,7 @@ EV.termico = {
   start(ev) {
     narrate('Atenção, tripulação. A nave está entrando em uma zona de calor extremo. No espaço não há ar para espalhar o calor. O lado voltado para a estrela esquenta sem parar, enquanto o outro lado congela. Mantenham a temperatura interna entre 18 e 26 graus.');
     sayRole('navegador', F('crew.c9'), 9);
-    thMsg('Alerta de calor: a nave vai esquentar. Prepare o resfriador e as cortinas.');
+    thMsg('Alerta de calor: a nave vai esquentar. Prepare o resfriador.');
   },
   tick(ev, dt) { thermalTick(ev, dt); },
 };
@@ -598,11 +625,11 @@ function thermalTick(ev, dt) {
   th.el += dt; ev.t = Math.max(0, th.D - th.el);
   const p = th.el / th.D;
   const peak = has('pintura') ? 100 : 120;
-  if (th.scene < 2 && p >= 0.12) { th.scene = 2; thMsg('A estrela se aproxima: o lado do Sol sobe para +' + peak + ' °C. Feche as cortinas.'); sayRole('engenheiro1', F('crew.c10'), 8); }
+  if (th.scene < 2 && p >= 0.12) { th.scene = 2; thMsg('A estrela se aproxima: o lado do Sol sobe para +' + peak + ' °C. Ligue o resfriador.'); sayRole('engenheiro1', F('crew.c10'), 8); }
   if (th.scene < 4 && p >= 0.45) { th.scene = 4; th.overload = true; thMsg('Sobrecarga elétrica: os equipamentos esquentam a nave. Ligue o resfriador.'); sayRole('pesquisador', F('crew.c12'), 8); }
   if (th.scene < 5 && p >= 0.66) { th.scene = 5; th.shadow = true; th.overload = false; thMsg('Entrada na sombra: vai esfriar rápido. Desligue o resfriador e ligue o aquecedor.'); sayRole('paramedico', F('crew.c13'), 8); }
   // temperaturas externas
-  const sunT = th.shadow ? -60 : (th.scene >= 2 ? peak : 60);
+  const sunT = th.shadow ? -60 : (th.scene >= 2 ? peak : 50);
   const shadeT = th.shadow ? -150 : (th.scene >= 2 ? -120 : -100);
   th.sun += (sunT - th.sun) * Math.min(1, dt * 0.4);
   th.shade += (shadeT - th.shade) * Math.min(1, dt * 0.4);
@@ -613,11 +640,14 @@ function thermalTick(ev, dt) {
     if (S.res.energia < need) { th.on[k] = false; thMsg('Sem energia: ' + TH_CTRL[k].name + ' desligou.'); continue; }
     addRes('energia', -need, 'Regulação térmica'); th.kwh += need; S.stats.thermalKwh += need;
   }
-  const closed = th.on.shut;
+  const closed = false; // sem cortinas: só liga/desliga
   const heatIn = Math.max(0, th.sun - 20) * 0.06 * (closed ? 0.3 : 1);
   const coldLoss = Math.max(0, 20 - th.shade) * (th.shadow ? 0.06 : 0.012) * (closed ? 0.5 : 1);
-  const equip = (th.overload ? 8 : 3) + (has('fusao') ? 2 : 0);
-  const Teq = 22 + heatIn - coldLoss + equip - (th.on.cool ? 12 : 0) + (th.on.heat ? 12 : 0);
+  const equip = (th.overload ? 7 : 3) + (has('fusao') ? 1 : 0);
+  // sem aparelhos a nave iria para "base"; o painel indica o que ligar a partir dela
+  th.base = 22 + heatIn - coldLoss + equip;
+  th.want = { cool: th.base > 26, heat: th.base < 18 };
+  const Teq = th.base - (th.on.cool ? 8 : 0) + (th.on.heat ? 9 : 0);
   th.Teq = Teq;
   th.T += (Teq - th.T) * Math.min(1, dt * 0.25);
   // plantação e tripulação sofrem fora da faixa
@@ -633,9 +663,10 @@ ACTIONS.thToggle = p => {
   const th = S.thermal; const ev = S.event;
   if (!th || !ev || ev.phase !== 'run' || !TH_CTRL[p.k]) return;
   const k = p.k;
-  if (k !== 'shut' && !th.on[k] && S.res.energia < 1) return toast('Energia insuficiente.', 'warn');
+  if (!th.on[k] && S.res.energia < 1) return toast('Energia insuficiente.', 'warn');
   th.on[k] = !th.on[k];
-  thMsg(k === 'shut' ? (th.on.shut ? 'Cortinas fechadas.' : 'Cortinas abertas.') : TH_CTRL[k].name + (th.on[k] ? ' ligado.' : ' desligado.'));
+  if (th.on[k]) th.on[k === 'heat' ? 'cool' : 'heat'] = false; // um desliga o outro
+  thMsg(TH_CTRL[k].name + (th.on[k] ? ' ligado.' : ' desligado.'));
   S.v++;
 };
 
@@ -685,7 +716,7 @@ ACTIONS.analyzeExo = p => {
   addRes('dados', -cost, 'Análise de exoplaneta'); S.explore.analyzed.push(p.id);
 };
 // Destino livre: o jogador pode escolher qualquer exoplaneta, até os errados (e aprender com as consequências).
-ACTIONS.setDest = p => { if (EXOPLANETS.some(e => e.id === p.id)) S.explore.dest = p.id; };
+ACTIONS.setDest = p => { if (p.id !== 'pontes') return; /* só Pontes-01b pode ser o destino */ if (EXOPLANETS.some(e => e.id === p.id)) S.explore.dest = p.id; };
 ACTIONS.chooseExo = ACTIONS.setDest;
 function tripCost(exo, back) {
   const t = exo.trip; const k = back ? 0.9 : 1;

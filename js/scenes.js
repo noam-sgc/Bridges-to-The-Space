@@ -228,7 +228,7 @@ function drawStreetSign(p, x) {
   const lines = signLines(p.t);
   cx.font = '8px "Silkscreen", monospace';
   const w = Math.ceil(Math.max(...lines.map(l => cx.measureText(l).width))) + 10, h = lines.length * 9 + 6;
-  const top = GROUND - 30 - h;
+  const top = GROUND - 64 - h; // placa alta: fica acima das pessoas
   cx.fillStyle = '#1a1612'; cx.fillRect(x - 1, top + h, 3, GROUND - top - h);           // poste
   cx.fillStyle = '#ffb03a'; cx.fillRect(x - w / 2 - 2, top - 2, w + 4, h + 4);             // moldura
   cx.fillStyle = '#16120e'; cx.fillRect(x - w / 2, top, w, h);
@@ -538,21 +538,19 @@ function guideTarget() {
 }
 function drawGuide() {
   const g = guideTarget(); if (!g) return;
-  const sx = Math.round(g.x - g.cam), bob = Math.round(Math.sin(R.t * 6) * 2);
-  const tri = (x, y, dir, col) => { // triângulo de pixels: dir 1 = direita, -1 = esquerda, 0 = para baixo
+  const sx = Math.round(g.x - g.cam), bob = Math.round(Math.sin(R.t * 6) * 3);
+  const N = 11; // seta grande (11 px de altura) com contorno preto
+  const tri = (x, y, dir, col) => { // dir 1 = direita, -1 = esquerda, 0 = para baixo
     cx.fillStyle = col;
-    for (let i = 0; i < 5; i++) {
-      const h = 2 * (4 - i) + 1;
-      if (dir === 0) cx.fillRect(x - (4 - i), y + i, h, 1);
-      else cx.fillRect(dir > 0 ? x - 4 + i : x + 4 - i, y - (4 - i), 1, h);
+    for (let i = 0; i < N; i++) {
+      const h = 2 * (N - 1 - i) + 1;
+      if (dir === 0) cx.fillRect(x - (N - 1 - i), y + i, h, 1);
+      else cx.fillRect(dir > 0 ? x - (N - 1) + i : x + (N - 1) - i, y - (N - 1 - i), 1, h);
     }
   };
-  if (sx < 12 || sx > VW - 12) {
-    const right = sx > VW - 12, ex = right ? VW - 6 + bob : 6 - bob, ey = clamp(g.y + 30, 30, VH - 30);
-    tri(ex + (right ? 1 : -1), ey + 1, right ? 1 : -1, '#000');
-    tri(ex, ey, right ? 1 : -1, '#ffd23f');
-  } else if (!g.drawn) {
-    tri(sx + 1, g.y + bob + 1, 0, '#000');
-    tri(sx, g.y + bob, 0, '#ffd23f');
-  }
+  const draw = (x, y, dir) => { tri(x + 2, y + 2, dir, 'rgba(0,0,0,0.75)'); tri(x, y, dir, '#ffd23f'); tri(x, y + (dir === 0 ? 1 : 0), dir, (Math.floor(R.t * 3) % 2) ? '#ffd23f' : '#fff6a8'); };
+  if (sx < 20 || sx > VW - 20) {
+    const right = sx > VW - 20, ex = right ? VW - 8 + bob : 8 - bob, ey = clamp(g.y + 30, 34, VH - 34);
+    draw(ex, ey, right ? 1 : -1);
+  } else if (!g.drawn) draw(sx, g.y - 8 + bob, 0);
 }

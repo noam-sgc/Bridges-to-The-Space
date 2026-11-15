@@ -101,7 +101,7 @@ function tickCity(dt) {
   if (E.panel) { const b = CITY_BUILDINGS.find(x => x.id === E.panel); if (!b || Math.abs(E.p.x - b.x) > 80) E.panel = null; }
   // ao passar por um prédio, o conteúdo abre sozinho no canto (se fechar, só reabre depois de se afastar)
   if (E.autoClosed) { const b = CITY_BUILDINGS.find(x => x.id === E.autoClosed); if (!b || Math.abs(E.p.x - b.x) > 80) E.autoClosed = null; }
-  if (!E.panel && !E.dialog && !U.comms) { const n = cityNear(); if (n && n.type === 'b' && E.autoClosed !== n.o.id) { E.panel = n.o.id; E.tab = 0; E.read[n.o.id + ':0'] = 1; } }
+  if (!E.panel && !E.dialog && !U.comms) { const n = cityNear(); if (n && n.type === 'b' && E.autoClosed !== n.o.id) { E.panel = n.o.id; E.tab = 0; cityVisit(n.o.id); E.read[n.o.id + ':0'] = 1; } }
   jumpTick(E.p, dt);
   // a primeira moradora puxa conversa logo no começo
   if (!E.greeted && E.t > 1.2 && !cityBusy()) { E.greeted = true; E.dialog = { id: CITY_NPCS[0].id, i: 0 }; E.read['npc:' + CITY_NPCS[0].id] = 1; E.target = CITY_NPCS[0].x - 26; }
@@ -113,6 +113,13 @@ function tickCity(dt) {
     const sp = 62 * (keys.ShiftLeft || keys.ShiftRight ? RUN_MULT : 1);
     if (dx) { p.x = clamp(p.x + dx * sp * dt, 20, EARTH_W - 20); p.face = dx; p.moving = true; p.walkT += dt * (sp / 62); } else p.moving = false;
   } else { E.p.moving = false; if (E.target != null && E.dialog) { const d = E.target - E.p.x; if (Math.abs(d) > 3) { E.p.x += Math.sign(d) * 62 * dt; E.p.face = Math.sign(d); E.p.moving = true; E.p.walkT += dt; } else E.target = null; } }
+}
+// cada prédio visitado na jornada vale +8 créditos (Loja e Quiz)
+function cityVisit(id) {
+  const E = U.earth; if (!E || E.read[id + ':0']) return;
+  if (S) { S.cityPaid = S.cityPaid || {}; if (S.cityPaid[id]) return; S.cityPaid[id] = 1; }
+  Save.data.credits += 8; Save.write(); Sfx.tone(1320, 0.08, 'square', 0.04);
+  if (S) S.toast = { text: '✦ +8 ' + L('créditos') + ' — ' + L((CITY_BUILDINGS.find(b => b.id === id) || {}).name || ''), kind: 'good', t: 2.5, id: Math.random() };
 }
 function cityComms() {
   if (typeof Net !== 'undefined' && Net.role === 'client') { if (S) S.toast = { text: 'O Comandante embarca todos no foguete quando estiver pronto.', kind: 'info', t: 3, id: Math.random() }; return; } // só o Comandante decide a partida
@@ -126,7 +133,7 @@ function cityInteract() {
   const n = cityNear(); if (!n) return;
   Sfx.click();
   if (n.type === 'r') return cityComms();
-  if (n.type === 'b') { E.panel = n.o.id; E.tab = 0; E.read[n.o.id + ':0'] = 1; learnMark(n.o.id + ':0'); }
+  if (n.type === 'b') { E.panel = n.o.id; E.tab = 0; cityVisit(n.o.id); E.read[n.o.id + ':0'] = 1; learnMark(n.o.id + ':0'); }
   else { E.dialog = { id: n.o.id, i: 0 }; E.read['npc:' + n.o.id] = 1; }
 }
 function cityEsc() { const E = U.earth; if (!E) return; if (E.dialog) E.dialog = null; else if (E.panel) { E.autoClosed = E.panel; E.panel = null; } else if (E.diary) E.diary = false; }
@@ -190,7 +197,7 @@ function cityScreen() {
   return `<div class="earth-hud">
     <div class="tbox tl small"><b>TERRA · 2091</b><br>Qualidade do ar: <span class="red">péssima (IQA 312)</span><br>Temperatura: <span class="orange">46 °C</span><br>Água: racionamento nível 4</div>
     <div class="tbox tr small">${esc(L('Explore a cidade.'))}<br>🚀 ${esc(L('O foguete da missão fica no fim da rua, à direita.'))}<br><button class="btn tiny" data-ui="earthSkip">⏭ ${esc(L('Pular para o foguete'))}</button></div>
-    ${prompt ? `<div class="hint">${prompt}</div>` : ''}</div>${houseCard}${ov}`;
+    ${prompt ? `<button class="hint big-prompt" data-ui="interactNow">${prompt}</button>` : ''}</div>${houseCard}${ov}`;
 }
 function cityPanel() {
   const E = U.earth; const b = CITY_BUILDINGS.find(x => x.id === E.panel); if (!b) return '';

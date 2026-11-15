@@ -98,8 +98,7 @@ function landingFuel() { // combustível do pouso: nave de pouso/principal + bai
     const m = setupMassInfo(S.setup), pct = Math.min(100, m.total / m.lim * 100), over = m.total > m.lim, short = m.dv < m.need;
     const box = `<div class="massbox"><div>⚖ ${esc(L(K('Massa', 'Mass', 'Masa')))} <b class="${over ? 'red' : ''}">${m.total} / ${m.lim} kg</b></div>
       <div class="massbar"><i style="width:${pct.toFixed(0)}%;background:${over ? '#ff5a5a' : pct > 90 ? '#ffb347' : '#5fd0ff'}"></i></div>
-      <div>🚀 Δv <b class="${short ? 'orange' : ''}">${m.dv}</b> m/s <span class="muted">(${esc(L(K('rota pede', 'route needs', 'ruta pide')))} ${m.need})</span></div>
-      <p class="small muted">${esc(L(K('Δv = Isp·g₀·ln(m₀/m_f): quanto mais pesada a nave, menos Δv o mesmo combustível dá.', 'Δv = Isp·g₀·ln(m₀/m_f): the heavier the ship, the less Δv the same propellant gives.', 'Δv = Isp·g₀·ln(m₀/m_f): cuanto más pesada la nave, menos Δv da el mismo combustible.')))}</p></div>`;
+      <div>🚀 Δv <b class="${short ? 'orange' : ''}">${m.dv}</b> m/s <span class="muted">(${esc(L(K('rota pede', 'route needs', 'ruta pide')))} ${m.need})</span></div></div>`;
     return h.replace('<ol class="steps">', box + '<ol class="steps">');
   };
   // combustível de cruzeiro: nave pesada gasta mais; Δv curto gasta ~20% a mais

@@ -86,6 +86,21 @@ function missionRequirements(st) {
   return base.concat(by[st.objective] || []);
 }
 
+// ---------- montagem recomendada: um clique monta uma nave equilibrada ----------
+UIH.setupRecommend = () => {
+  const st = S.setup; ['modules', 'upgrades', 'reserves', 'pantry', 'skills', 'training', 'gadgets'].forEach(l => { st[l] = []; }); sd(st).instruments = [];
+  st.objective = 'colonia'; st.route = 'equilibrada'; st.launcher = 'medio'; st.orbitAlt = 800;
+  const want = [['modules', 'estufa'], ['modules', 'sonda'], ['modules', 'reciclaAgua'], ['modules', 'enfermaria'], ['upgrades', 'filtroReserva'], ['pantry', 'racaoExtra'], ['modules', 'solar']];
+  const cats = { modules: MODULES, upgrades: UPGRADES, pantry: PANTRY, reserves: RESERVES };
+  for (const [l, id] of want) {
+    const it = (cats[l] || []).find(x => x.id === id); if (!it) continue;
+    st[l].push(id);
+    const m = setupMassInfo(st);
+    if (setupCost(st) > setupBudget() - 6 || (l === 'modules' && setupSlots(st) > SLOTS) || m.total > m.lim || m.dv < m.need) st[l].pop(); // guarda ~6 pts de reserva
+  }
+  U.setupDirty = true; Sfx.ok && Sfx.ok();
+};
+
 // ---------- telas da montagem ----------
 UIH.setObjective = id => { sd(S.setup).objective = id; U.setupDirty = true; };
 UIH.setLauncher = id => { const st = sd(S.setup); const old = st.launcher; st.launcher = id; if (setupCost(st) > setupBudget()) { st.launcher = old; Sfx.bad(); } U.setupDirty = true; };
@@ -121,7 +136,7 @@ function constraintsBox(st) {
       h = h.replace(/(<h2>1\. [^<]*<\/h2>)/, '$1' + obj);
     }
     if (step === 'modules') {
-      const ins = `<h4>🔭 ${esc(kk('Instrumentos científicos', 'Science instruments', 'Instrumentos científicos'))} <small class="muted">${st.instruments.length}/${MAX_INSTR}</small></h4><div class="opts">${INSTRUMENTS.map(i => { const on = st.instruments.includes(i.id); return `<button class="opt ${on ? 'on' : ''}" data-ui="setInstr" data-arg="${i.id}"><b>${esc(L(i.name))}</b><span>${esc(L(i.desc))}</span><em>${i.pts} pts · ${i.kg} kg · −${fmt(i.kwh, 1)} kWh/${kk('dia', 'day', 'día')} · +${i.gb} GB/${kk('dia', 'day', 'día')}</em></button>`; }).join('')}</div>`;
+      const ins = `<h4>🔭 ${esc(kk('Instrumentos científicos', 'Science instruments', 'Instrumentos científicos'))} <small class="muted">${st.instruments.length}/${MAX_INSTR}</small></h4><div class="opts">${INSTRUMENTS.map(i => { const on = st.instruments.includes(i.id); return `<button class="opt ${on ? 'on' : ''}" data-ui="setInstr" data-arg="${i.id}" title="${esc(L(i.desc))}"><b>${{ espectrometro: '🌈', telescopio: '🔭', detectorRad: '☢', camera: '📷' }[i.id] || ''} ${esc(L(i.name))}</b><span class="idesc">${esc(L(i.desc))}</span><em>${i.pts} pts · ${i.kg} kg · −${fmt(i.kwh, 1)} kWh/${kk('dia', 'day', 'día')} · +${i.gb} GB/${kk('dia', 'day', 'día')}</em></button>`; }).join('')}</div>`;
       h = h.replace(/(<h2>2\. [^<]*<\/h2>)/, '$1' + ins);
     }
     if (step === 'report') {
@@ -130,6 +145,8 @@ function constraintsBox(st) {
         <h4>📋 ${esc(kk('Requisitos da missão', 'Mission requirements', 'Requisitos de la misión'))}</h4>${reqList(st)}`;
       h = h.replace(/(<h2>4\. [^<]*<\/h2>)/, '$1' + lv);
     }
+    // botão de montagem recomendada logo abaixo do título
+    if (step === 'mission' || step === 'modules') h = h.replace(/(<h2>[12]\. [^<]*<\/h2>)/, `$1<button class="btn primary" data-ui="setupRecommend">⭐ ${esc(kk('Montagem recomendada', 'Recommended build', 'Montaje recomendado'))}</button>`);
     return h;
   };
 }
@@ -178,5 +195,34 @@ function objectiveMet() {
     if (ok && !S.objAwarded && Net.role !== 'client') { S.objAwarded = true; addPoints(100, 'Objetivo da missão'); }
     const box = `<div class="alert ${ok ? 'good' : 'warn'}">🎯 ${esc(kk('Objetivo', 'Objective', 'Objetivo'))}: <b>${esc(L(o.name))}</b> — ${ok ? esc(kk('cumprido! +100 pontos', 'achieved! +100 points', '¡cumplido! +100 puntos')) : esc(kk('não cumprido', 'not achieved', 'no cumplido'))}</div>`;
     return h.replace('<div class="kv">', box + '<div class="kv">');
+  };
+}
+
+// ---------- nave recomendada como padrão: decolar logo ou "montar a minha" ----------
+{
+  const _to = UIH.toSetup;
+  UIH.toSetup = function () { _to(); UIH.setupRecommend(); U.setupQuick = true; U.setupDirty = true; };
+  UIH.buildOwn = () => { U.setupQuick = false; U.setupStep = 0; U.setupDirty = true; };
+  UIH.buildQuick = () => { UIH.setupRecommend(); U.setupQuick = true; U.setupDirty = true; };
+  const _ss = setupScreen;
+  setupScreen = function () {
+    if (!U.setupQuick || !S || !S.setup) {
+      const h = _ss();
+      return S && S.setup ? h.replace('<h3>MONTAGEM</h3>', `<h3>MONTAGEM</h3><button class="btn" data-ui="buildQuick">⭐ ${esc(kk('Usar a recomendada', 'Use recommended', 'Usar la recomendada'))}</button>`) : h;
+    }
+    const st = sd(S.setup);
+    const cats = [['modules', MODULES], ['upgrades', UPGRADES], ['pantry', PANTRY], ['reserves', RESERVES]];
+    const items = [];
+    for (const [l, cat] of cats) for (const id of st[l] || []) { const it = cat.find(x => x.id === id); if (it) items.push(`<div class="qitem"><span>${ITEM_ICON[id] || '▪'}</span><b>${esc(T(it.name))}</b></div>`); }
+    for (const id of st.instruments || []) { const it = INSTRUMENTS.find(x => x.id === id); if (it) items.push(`<div class="qitem"><span>🔭</span><b>${esc(L(it.name))}</b></div>`); }
+    const route = ROUTES.find(r => r.id === st.route) || {};
+    const lv = LAUNCHERS.find(l => l.id === st.launcher) || {};
+    return `<div class="setup quickset"><div class="qpanel">
+      <h2>⭐ ${esc(kk('Nave recomendada', 'Recommended ship', 'Nave recomendada'))}</h2>
+      <p class="muted">${esc(kk('Já montamos uma nave equilibrada para você. É só decolar!', 'We already built a balanced ship for you. Just launch!', 'Ya armamos una nave equilibrada para ti. ¡Solo despega!'))}</p>
+      <div class="qgrid">${items.join('')}</div>
+      <div class="qline"><span>🧭 ${esc(T(route.name || ''))}</span><span>🚀 ${esc(L(lv.name || ''))}</span><span>💰 ${setupBudget() - setupCost(st)} pts ${esc(kk('de reserva', 'in reserve', 'de reserva'))}</span></div>
+      <div class="row qbtns"><button class="btn primary huge" data-ui="launch">🚀 ${esc(kk('DECOLAR', 'LAUNCH', 'DESPEGAR'))}</button><button class="btn huge2" data-ui="buildOwn">🛠 ${esc(kk('Montar a minha', 'Build my own', 'Armar la mía'))}</button></div>
+    </div></div>`;
   };
 }

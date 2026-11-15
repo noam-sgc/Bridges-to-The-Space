@@ -168,6 +168,8 @@ function frame(now) {
 const shiftOn = () => keys.ShiftLeft || keys.ShiftRight;
 // Esc: fecha o que estiver aberto, desmarca seleções e volta
 function escAll() {
+  if (U.settingsOpen) { U.settingsOpen = false; return true; }
+  if (U.voicePick) { U.voicePick = false; return true; }
   if (S && U.screen === 'game' && S.scene === 'colony' && me() && me().csleep) { act('cWake'); return true; } // dormindo: Esc acorda
   if (U.help) { U.help = false; return true; }
   if (Chat.open) { Chat.toggle(false); return true; }
