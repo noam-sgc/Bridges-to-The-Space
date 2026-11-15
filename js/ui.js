@@ -836,7 +836,7 @@ function renderUI() {
   }
   if (S && U.screen === 'game' && !hud && !['intro', 'launch', 'end'].includes(S.scene) && !(S.scene === 'earth' && U.comms)) hud = assistMini() + lessonCard();
   if (U.help && S && U.screen === 'game') modal = helpPanel();
-  if (S && U.screen === 'game') hud += `<button class="gear" data-ui="gearOpen" title="${esc(L('Configurações'))}">⚙</button>`;
+  // a configuração fica na barra rápida da esquerda (sem botão ⚙ isolado)
   if (U.settingsOpen && S && U.screen === 'game') modal = `<div class="modal-bg">${settingsScreen(true).replace('data-ui="closePanel"', 'data-ui="gearClose"').replace('</h2>', '</h2><div class="row" style="justify-content:center">' + LANGS.map(l => `<button class="chip ${I18n.lang === l.id ? 'on' : ''}" data-ui="setLang" data-arg="${l.id}">${l.label}</button>`).join('') + '</div>')}</div>`;
   if (U.voicePick) modal = voicePickPanel();
   sitePlayMode();

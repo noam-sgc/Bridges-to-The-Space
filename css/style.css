@@ -686,9 +686,9 @@ img.pxe { width: 1.15em; height: 1.15em; image-rendering: pixelated; image-rende
 .puzzle.vis .opts1 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
 .puzzle.vis .opts1 .btn.pzbig { padding: .4em .5em; min-height: 2.2em; font-size: .9em; }
 .opt.sug{box-shadow:0 0 0 1px #ffd34c inset}
-#qbar{position:absolute;left:4px;top:50%;transform:translateY(-50%);z-index:30;pointer-events:none}
-.qbar{display:flex;flex-direction:column;gap:4px}
-.qb{pointer-events:auto;width:26px;height:26px;padding:0;border:1px solid rgba(143,163,214,.5);background:rgba(10,14,34,.75);color:#fff;border-radius:4px;cursor:pointer;font-size:13px;line-height:1}
+#qbar{position:absolute;left:8px;top:50%;transform:translateY(-50%);z-index:30;pointer-events:none}
+.qbar{display:flex;flex-direction:column;gap:8px}
+.qb{pointer-events:auto;width:46px;height:46px;padding:0;border:2px solid rgba(143,163,214,.7);background:rgba(10,14,34,.85);color:#fff;border-radius:6px;cursor:pointer;font-size:24px;line-height:1}
 .qb.off{opacity:.55}
 .qb:hover{border-color:#ffd34c}
 .exo.locked{opacity:.35;pointer-events:none;filter:grayscale(1)}

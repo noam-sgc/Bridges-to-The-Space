@@ -25,6 +25,7 @@ const Phases = {
     if (this.hist[n - 1].scene !== S.scene) return this.hist[n - 1];
     return n >= 2 ? this.hist[n - 2] : null;
   },
+  played() { return !['earth', 'setup', 'avatar'].includes(S.scene) || this.hist.some(h => !['earth', 'setup', 'avatar'].includes(h.scene)); },
   back() {
     const p = this.prev(); if (!p) return;
     const i = this.hist.indexOf(p); this.hist.length = i + 1;
@@ -39,23 +40,15 @@ const Phases = {
 
 function quickBar() {
   const st = Save.data.settings;
-  const inGame = S && U.screen === 'game';
-  const p = inGame && !['intro', 'end'].includes(S.scene) && !(typeof Net !== 'undefined' && Net.role === 'client') ? Phases.prev() : null;
   return `<div class="qbar">
     <button class="qb ${st.mute ? 'off' : ''}" data-ui="qAudio" title="${esc(L(K('Áudio (música e voz)', 'Audio (music and voice)', 'Audio (música y voz)')))}">${st.mute ? '🔇' : '🔊'}</button>
     <button class="qb ${st.sfxOff ? 'off' : ''}" data-ui="qSfx" title="${esc(L(K('Efeitos sonoros', 'Sound effects', 'Efectos de sonido')))}">${st.sfxOff ? '🔕' : '🔔'}</button>
     <button class="qb" data-ui="qSettings" title="${esc(L(K('Configurações', 'Settings', 'Configuración')))}">⚙</button>
-    ${p ? `<button class="qb" data-ui="qBack" title="${esc(L(K('Voltar para a fase anterior', 'Back to the previous phase', 'Volver a la fase anterior')))}: ${esc(L(SCENE_NAMES[p.scene] || p.scene))}">◀</button>` : ''}
   </div>`;
 }
 UIH.qAudio = () => { const st = Save.data.settings; st.mute = !st.mute; Save.write(); if (st.mute) Narrator.stop(); Music.refreshVolume(); };
 UIH.qSfx = () => { const st = Save.data.settings; st.sfxOff = !st.sfxOff; Save.write(); };
 UIH.qSettings = () => { if (S && U.screen === 'game') U.qset = !U.qset; else U.screen = 'settings'; };
-UIH.qBack = () => {
-  const p = Phases.prev(); if (!p) return;
-  if (!U.qBackAsk || Date.now() - U.qBackAsk > 4000) { U.qBackAsk = Date.now(); toastLocal(K('Toque ◀ de novo para voltar a: ' + L(SCENE_NAMES[p.scene] || ''), 'Tap ◀ again to go back to: ' + L(SCENE_NAMES[p.scene] || ''), 'Toque ◀ otra vez para volver a: ' + L(SCENE_NAMES[p.scene] || ''))); return; }
-  U.qBackAsk = 0; U.qset = false; Phases.back();
-};
 (function () {
   const _close = UIH.closePanel; UIH.closePanel = function () { if (U.qset) { U.qset = false; return; } _close(); };
   const _render = renderUI;
