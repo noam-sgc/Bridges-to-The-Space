@@ -7,7 +7,7 @@
 
 const RUN_MULT = 1.75; // Shift + andar
 // gravidade do pulo por lugar: no espaço o pulo é lento e "flutua"
-const JUMP = { ship: { v: 74, g: 120 }, earth: { v: 150, g: 620 }, colony: { v: 135, g: 430 } };
+const JUMP = { ship: { v: 74, g: 120 }, earth: { v: 150, g: 620 }, colony: { v: 145, g: 583 } }; // Pontes-01b: 0,94 g
 
 function jumpStart(o, where) {
   if (!o || (o.jy || 0) > 0.5) return false;
@@ -85,8 +85,8 @@ function assistSteps() {
     case 'planet':
       // as 4 análises que contam para escolher onde pousar
       [['atmosfera', 'Analise a atmosfera do planeta.'], ['agua', 'Analise a água do planeta.'], ['solo', 'Analise o solo do planeta.'], ['radiacao', 'Analise a radiação do planeta.']].forEach(([id, t]) => add(t, S.planet.analyzed.includes(id), null, '🔬'));
-      CHALLENGES.forEach(ch => add(ch.name, S.planet.challenges.some(c => c.id === ch.id), null, '🎲'));
-      add('Planeje a migração.', false, null, '🗺', 'toMigration');
+      add('Prepare a tripulação para descer.', S.planet.challenges.length >= CHALLENGES.length, null, '🧑‍🚀', 'prepCrew');
+      add('Escolha onde pousar.', false, null, '🛬', 'toMigration');
       break;
     case 'migration':
       add(S.planet.site && S.planet.site !== bestSite().id ? 'O local ideal de pouso é o Vale Equatorial: água, clima ameno e radiação moderada.' : 'Escolha o local de pouso: o ideal é o Vale Equatorial (água, clima ameno e radiação moderada).', S.planet.site === bestSite().id, null, '📍');

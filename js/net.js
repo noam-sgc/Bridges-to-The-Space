@@ -166,6 +166,7 @@ const Net = {
       case 'pos': {
         if (this.forwardToCmd(m)) return;
         const p = this.players[m.pid]; if (!p || !S) return;
+        if (m.ex != null) { if (S.scene === 'earth') { S.cityPos = S.cityPos || {}; S.cityPos[p.role] = { x: clamp(+m.ex || 0, 0, EARTH_W), face: m.face > 0 ? 1 : -1, moving: !!m.moving, walkT: +m.walkT || 0, jy: clamp(+m.jy || 0, 0, 40) }; } return; }
         const c = crewById(p.role); if (!c || !c.alive) return;
         Object.assign(c, { x: clamp(+m.x || 0, 20, (S.scene === 'colony' ? COLONY_W : WORLD_W) - 20), deck: m.deck === 'L' ? 'L' : 'U', face: m.face > 0 ? 1 : -1, moving: !!m.moving, walkT: +m.walkT || 0, climb: +m.climb || 0, climbTo: m.climbTo === 'L' ? 'L' : 'U', jy: clamp(+m.jy || 0, 0, 40) });
         c.tx = c.x; c.tdeck = c.deck;
@@ -268,6 +269,10 @@ const Net = {
     if (this.role === 'host' && S) {
       this.sendT -= dt;
       if (this.sendT <= 0) { this.sendT = 0.2; if (this.relay) this.send({ t: 'bcast', msg: { t: 'state', S } }); else this.sendMembers(this.shipMembers(), { t: 'state', S }); }
+    }
+    if (this.role === 'client' && S && S.scene === 'earth' && U.earth) {
+      this.posT -= dt;
+      if (this.posT <= 0) { this.posT = 0.12; const p = U.earth.p; this.send({ t: 'pos', ex: Math.round(p.x), face: p.face, moving: !!p.moving, walkT: p.walkT || 0, jy: Math.round((p.jy || 0) * 10) / 10 }); }
     }
     if (this.role === 'client' && S && (S.scene === 'ship' || S.scene === 'colony')) {
       this.posT -= dt;

@@ -94,11 +94,10 @@ function lessonOf(rec) { return rec && rec.ev ? ALL_LESSONS[rec.ev] : null; }
 {
   const _rep = TASK_DONE.repair; TASK_DONE.repair = (c, d) => { _rep(c, d); if (d && SYS_LESSON[d.sys]) teach(SYS_LESSON[d.sys]); };
   const _hook = routineHook; routineHook = function (type, p, actor) { const r = S && S.routine; const before = r ? r.items.filter(x => x.done).map(x => x.id) : []; _hook(type, p, actor); if (!r) return; const now = r.items.filter(x => x.done && !before.includes(x.id)); if (now[0] && CHORE_LESSON[now[0].id]) teach(CHORE_LESSON[now[0].id]); };
-  const ACTION_LESSON = { eat: 'horta', cook: 'horta', harvest: 'horta', plant: 'horta', careAll: 'horta', sleep: 'doenca', rest: 'doenca', treat: 'doenca', replaceMeds: 'doenca', processTrash: 'lixo', ejectTrash: 'lixo', research: 'webb', cruise: 'phases', trade: 'iss', analyzeExo: 'webb', cEat: 'horta', cSleep: 'sol' };
+  const ACTION_LESSON = { eat: 'horta', cook: 'horta', harvest: 'horta', plant: 'horta', careAll: 'horta', sleep: 'doenca', rest: 'doenca', treat: 'doenca', replaceMeds: 'doenca', processTrash: 'lixo', ejectTrash: 'lixo', research: 'webb', cruise: 'rotas', trade: 'iss', analyzeExo: 'webb', cEat: 'horta', cSleep: 'sol' };
   const _apply = applyAction; applyAction = function (type, p, actorId) { _apply(type, p, actorId); if (ACTION_LESSON[type] && S && (type !== 'research' || (p && p.on))) teach(ACTION_LESSON[type]); };
   const _fund = ACTIONS.fund; ACTIONS.fund = (p, a) => { _fund(p, a); teach('margins'); };
   const _st = enterStation; enterStation = function () { _st(); teach('iss', true); };
-  const _pl = enterPlanet; enterPlanet = function () { _pl(); teach('marsAtm', true); };
   const _col = startColony; startColony = function (a, b) { _col(a, b); teach('marsGrav', true); };
   const _lv = leaveStation; leaveStation = function () { _lv(); teach('webb', true); };
 }

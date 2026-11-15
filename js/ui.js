@@ -628,7 +628,7 @@ function reportPanel() {
 }
 function crewList() {
   return `<div class="crewlist">${S.crew.map(c => `<div class="crew ${c.alive ? '' : 'dead'}"><img src="${spriteURL(c.avatar, 'suit', c.alive && c.humor >= 40 ? 'happy' : 'sad', 2)}" alt=""><div><b>${esc(c.name)}</b>${c.alive ? '' : ' 💀'} <small>${esc(c.roleName)}</small> ${c.owner && c.owner !== 'bot' ? '<span class="tag">🎮 jogador</span>' : '<span class="tag">🤖 bot</span>'}<br>
-    ${c.alive ? `<div class="meters"><span>${esc(L('Humor e sono'))}</span>${bar(c.humor, 100)}<span>Saciedade</span>${bar(c.saciedade, 100)}<span>Nutrição</span>${bar(c.nutricao, 100)}<span class="nutr" title="${esc(L(NUTR_NAMES[0]))} / ${esc(L(NUTR_NAMES[1]))} / ${esc(L(NUTR_NAMES[2]))}">${(c.nut || [80, 80, 80]).map((v, i) => `<i class="n${i} ${v < 25 ? 'low' : ''}" style="height:${Math.round(v)}%"></i>`).join('')}</span></div>${c.nut && c.nut[2] < 25 ? `<small class="orange">${esc(L('Faltam vitaminas: sirva comida fresca.'))}</small><br>` : ''}<small><span>${c.hibernating ? '💤 ' + esc(L('hibernando')) : c.sickness ? '🤒 ' + esc(L('doente')) : c.status === 'ok' ? '✔ ok' : '✚ ' + esc(T(c.status))}</span>${c.task ? ' · <span>' + esc(T(c.task.label)) + '</span>' : ''} · ❤ ${esc(tagNames(c.likes))}${c.allergy.length ? ' · ' + esc(L('alergia')) + ': ' + esc(tagNames(c.allergy)) : ''}</small>` : '☠ morto'}</div></div>`).join('')}</div>`;
+    ${c.alive ? `<div class="meters"><span>${esc(L('Humor e sono'))}</span>${bar(c.humor, 100)}<span>Saciedade</span>${bar(c.saciedade, 100)}<span>Nutrição</span>${bar(c.nutricao, 100)}<span>☢ ${esc(L('Radiação'))}</span>${bar(Math.min(c.rad || 0, 300), 300, '', true)}<small class="${(c.rad || 0) >= 250 ? 'red' : (c.rad || 0) >= 100 ? 'orange' : 'muted'}">${fmt(c.rad || 0, 0)} mSv</small><span class="nutr" title="${esc(L(NUTR_NAMES[0]))} / ${esc(L(NUTR_NAMES[1]))} / ${esc(L(NUTR_NAMES[2]))}">${(c.nut || [80, 80, 80]).map((v, i) => `<i class="n${i} ${v < 25 ? 'low' : ''}" style="height:${Math.round(v)}%"></i>`).join('')}</span></div>${c.nut && c.nut[2] < 25 ? `<small class="orange">${esc(L('Faltam vitaminas: sirva comida fresca.'))}</small><br>` : ''}<small><span>${c.hibernating ? '💤 ' + esc(L('hibernando')) : c.sickness ? '🤒 ' + esc(L('doente')) : c.status === 'ok' ? '✔ ok' : '✚ ' + esc(T(c.status))}</span>${c.task ? ' · <span>' + esc(T(c.task.label)) + '</span>' : ''} · ❤ ${esc(tagNames(c.likes))}${c.allergy.length ? ' · ' + esc(L('alergia')) + ': ' + esc(tagNames(c.allergy)) : ''}</small>` : '☠ morto'}</div></div>`).join('')}</div>`;
 }
 function fundPanel() {
   const o = S.scene === 'colony'
@@ -680,7 +680,7 @@ function stationScreen() {
       <div class="exos">${EXOPLANETS.map(e => {
         const an = S.explore.analyzed.includes(e.id); const vis = S.explore.visited && S.explore.visited[e.id];
         const dist = typeof e.dist === 'number' ? fmt(e.dist, 1) + ' ' + L('anos-luz') : L('na rota');
-        return `<div class="exo ${dest === e.id ? 'on' : ''} ${vis ? 'visited' : ''}"><b>${e.name}</b>${vis ? ` <em class="red">✖ ${esc(L('visitado: inabitável'))}</em>` : ''}${an || vis ? `<div class="kv small"><span>${esc(L('Distância'))}</span><b>${dist}</b><span>${esc(L('Raio/massa'))}</span><b>${e.radius}</b><span>${esc(L('Temp. de equilíbrio'))}</span><b>${e.teq} K</b><span>${esc(L('Ano'))}</span><b>${e.period} ${esc(L('dias'))}</b><span>${esc(L('Distância orbital'))}</span><b>${e.sma} UA</b><span>${esc(L('Descoberta'))}</span><b>${esc(T(e.disc))}</b><span>${esc(L('Estrela'))}</span><b>${esc(T(e.star))}</b><span>ESI</span><b>${e.esi}</b></div><p class="small muted">${esc(T(e.issues))}</p>` : `<button class="btn tiny" data-act="analyzeExo" data-p='${J({ id: e.id })}'>${esc(L('Analisar'))}</button>`}
+        return `<div class="exo ${dest === e.id ? 'on' : ''} ${vis ? 'visited' : ''}"><b>${e.name}</b>${vis ? ` <em class="red">✖ ${esc(L('visitado: inabitável'))}</em>` : ''}${an || vis ? `<div class="kv small"><span>${esc(L('Distância'))}</span><b>${dist}</b><span>${esc(L('Raio/massa'))}</span><b>${e.radius}</b><span>${esc(L('Gravidade'))}</span><b>${EXO_GRAV[e.id] ? (I18n.lang === 'en' ? EXO_GRAV[e.id].replace(',', '.') : EXO_GRAV[e.id]) : '—'}</b><span>${esc(L('Temp. de equilíbrio'))}</span><b>${e.teq} K</b><span>${esc(L('Ano'))}</span><b>${e.period} ${esc(L('dias'))}</b><span>${esc(L('Distância orbital'))}</span><b>${e.sma} UA</b><span>${esc(L('Descoberta'))}</span><b>${esc(T(e.disc))}</b><span>${esc(L('Estrela'))}</span><b>${esc(T(e.star))}</b><span>ESI</span><b>${e.esi}</b></div><p class="small muted">${esc(T(e.issues))}</p>` : `<button class="btn tiny" data-act="analyzeExo" data-p='${J({ id: e.id })}'>${esc(L('Analisar'))}</button>`}
         <button class="btn tiny ${dest === e.id ? 'primary' : ''}" data-act="setDest" data-p='${J({ id: e.id })}'>${dest === e.id ? '✔ ' : ''}${esc(L('Destino'))}</button></div>`;
       }).join('')}</div>`;
   } else body = tradeZone();
@@ -708,14 +708,27 @@ function detourScreen() {
     <div class="row"><button class="btn primary big" data-act="detourReturn">↩ ${esc(L('Voltar à Estação Ponte-Alfa'))}</button></div></div>`;
 }
 function miniRes() { return `<div class="minires">${['energia', 'combustivel', 'agua', 'oxigenio', 'comida', 'dados'].map(k => { const m = RES_META.find(x => x.id === k); return `<span>${m.icon} ${fmt(S.res[k], 0)} ${m.unit}</span>`; }).join('')}<span>✚ ${fmt(S.res.medicos, 0)}</span><span>⚙ ${S.peças} peças</span></div>`; }
+// órbita de Pontes-01b em 3 passos: analisar → preparar a tripulação → escolher onde pousar
+const KEY_ANALYSES = ['atmosfera', 'agua', 'solo', 'radiacao'];
 function planetScreen() {
-  return `<div class="stage-panel"><h2>O NOVO MUNDO: PONTES-01b</h2>${miniRes()}<div class="scroll">
-    <h4>Análises ${has('sonda') ? '(sonda de reconhecimento)' : has('pouso') ? '(nave auxiliar de pouso)' : '(sem sonda: a nave desce — arriscado)'}</h4>
-    <div class="opts">${PLANET_ANALYSES.map(a => { const d = S.planet.analyzed.includes(a.id); return `<div class="opt ${d ? 'on' : ''}"><b>${a.name}</b><span>${d ? esc(a.result) : 'custo: ' + a.cost + ' GB e 4 kWh'}</span>${d ? '' : `<button class="btn tiny" data-act="planetAnalyze" data-p='${J({ id: a.id })}'>Analisar</button>`}</div>`; }).join('')}</div>
-    <h4>Desafios de adaptação e sobrevivência</h4>
-    <div class="opts">${CHALLENGES.map(ch => { const done = S.planet.challenges.find(c => c.id === ch.id); const mods = ch.mods().filter(m => m[0]); return `<div class="opt ${done ? (done.ok ? 'on' : 'cant') : ''}"><b>${ch.name}</b><span>${ch.desc}</span><em>${mods.map(m => (m[0] > 0 ? '+' : '') + m[0] + ' ' + T(m[1])).join(' · ') || T('sem bônus')}</em>${done ? `<span class="${done.ok ? 'green' : 'red'}">${done.ok ? 'Sucesso' : esc(done.txt)}</span>` : `<button class="btn tiny" data-act="challenge" data-p='${J({ id: ch.id })}'>Enfrentar (d20)</button>`}</div>`; }).join('')}</div>
-    </div><div class="row"><button class="btn primary" data-act="toMigration">Planejar a migração ▶</button></div></div>`;
+  const P = S.planet;
+  const nA = KEY_ANALYSES.filter(id => P.analyzed.includes(id)).length;
+  const nC = P.challenges.length, allC = nC >= CHALLENGES.length;
+  const step = (n, done, title, sub, body) => `<div class="pstep ${done ? 'done' : ''}"><div class="pnum">${done ? '✔' : n}</div><div><b>${esc(L(title))}</b><small>${esc(L(sub))}</small>${body}</div></div>`;
+  const an = KEY_ANALYSES.map(id => { const a = PLANET_ANALYSES.find(x => x.id === id); const d = P.analyzed.includes(id); return d ? `<div class="pres">✔ <b>${esc(T(a.name))}</b> <span>${esc(T(a.result))}</span></div>` : `<button class="btn" data-act="planetAnalyze" data-p='${J({ id })}'>🔬 ${esc(T(a.name))}</button>`; }).join('');
+  const ch = allC ? P.challenges.map(c => { const d = CHALLENGES.find(x => x.id === c.id); return `<div class="pres ${c.ok ? '' : 'bad'}">${c.ok ? '✔' : '✖'} <b>${esc(T(d.name))}</b>${c.ok ? '' : ` <span>${esc(T(c.txt))}</span>`}</div>`; }).join('')
+    : `<button class="btn" data-act="prepCrew" ${nA < KEY_ANALYSES.length ? 'disabled' : ''}>🧑‍🚀 ${esc(L('Preparar a tripulação'))}</button>`;
+  return `<div class="stage-panel"><h2>${esc(L('O NOVO MUNDO: PONTES-01b'))}</h2>${miniRes()}<div class="scroll">
+    <p class="lead">${esc(L('Antes de descer, descubra se o planeta é seguro e prepare a tripulação.'))}</p>
+    ${step(1, nA >= KEY_ANALYSES.length, 'Analise o planeta', `${nA}/${KEY_ANALYSES.length} · ` + L('cada análise gasta dados e energia'), `<div class="pbtns">${an}</div>`)}
+    ${step(2, allC, 'Prepare a tripulação', 'aclimatação ao ar, primeira plantação e abrigo na superfície', `<div class="pbtns">${ch}</div>`)}
+    ${step(3, false, 'Escolha onde pousar', 'o computador indica o melhor lugar', `<div class="pbtns"><button class="btn primary" data-act="toMigration" ${allC ? '' : 'disabled'}>🛬 ${esc(L('Escolher o local de pouso'))} ▶</button></div>`)}
+    <details class="evinfo"><summary>⚙ ${esc(L('Órbita (opcional)'))}</summary><!--orbit--></details>
+    </div></div>`;
 }
+// prepara a tripulação: os 3 testes de adaptação de uma vez
+ACTIONS.prepCrew = () => { if (S.scene !== 'planet') return; for (const ch of CHALLENGES) if (!S.planet.challenges.find(c => c.id === ch.id)) ACTIONS.challenge({ id: ch.id }); };
+
 function migrationScreen() {
   return `<div class="stage-panel"><h2>MIGRAÇÃO</h2>${miniRes()}<div class="scroll"><p class="small">Escolha onde a expedição vai pousar. O que você analisou aparece em detalhes; o resto é risco.</p>
     <div class="opts">${LANDING_SITES.map(s => `<button class="opt ${S.planet.site === s.id ? 'on' : ''} ${s.id === bestSite().id ? 'rec' : ''}" data-act="chooseSite" data-p='${J({ id: s.id })}'><b>${s.name}${s.id === bestSite().id ? ` <em class="yellow">★ ${esc(L('ideal'))}</em>` : ''}</b><span>✔ ${s.pros}</span><span>✖ ${s.cons}</span><em>${Object.keys(s.score).map(k => S.planet.analyzed.includes(k) ? `${T(PLANET_ANALYSES.find(a => a.id === k).name)}: ${T(s.score[k] > 0 ? 'bom' : s.score[k] < 0 ? 'ruim' : 'neutro')}` : `${T(PLANET_ANALYSES.find(a => a.id === k).name)}: ?`).join(' · ')}</em></button>`).join('')}</div>
@@ -755,7 +768,7 @@ function endScreen() {
     ${e.ok && e.colony && S.colony ? `<div class="kv"><span>${esc(L('População final'))}</span><b>${colonyPop()}</b><span>${esc(L('Dias na colônia'))}</span><b>${S.colony.day}</b><span>${esc(L('Construções'))}</span><b>${S.colony.built}</b><span>${esc(L('Pacotes de dados enviados à Terra'))}</span><b>${S.colony.txCount}</b><span>${esc(L('Exoplanetas visitados por engano'))}</span><b>${(S.explore && S.explore.wrong) || 0}</b></div>` : ''}
     <div class="kv"><span>Dias de viagem</span><b>${S.day}</b><span>Tripulantes vivos</span><b>${alive().length}/7</b><span>Pontos</span><b>${S.points}</b><span>Energia gasta</span><b>${fmt(spent('energia'), 0)} kWh</b><span>Combustível gasto</span><b>${fmt(spent('combustivel'), 0)} kg</b><span>Água consumida</span><b>${fmt(spent('agua'), 0)} L</b><span>Oxigênio respirado</span><b>${fmt(spent('oxigenio'), 0)} kg</b>
       <span>Comida produzida / desperdiçada</span><b>${fmt(fd.produced, 1)} / ${fmt(fd.wasted, 1)} kg</b><span>kWh e litros por kg de comida</span><b>${fd.produced > 0 ? fmt(S.stats.kwhFood / fd.produced, 1) + ' kWh · ' + fmt(S.stats.waterFood / fd.produced, 1) + ' L' : '—'}</b><span>Receitas descobertas</span><b>${fd.recipes.length}/${RECIPES.length}</b><span>Dias de mesa completa</span><b>${fd.mesaDays}</b><span>Humor médio</span><b>${fmt(humorAvg, 0)}</b>
-      <span>Custo da regulação térmica</span><b>${fmt(S.stats.thermalKwh, 1)} kWh · ${fmt(S.stats.thermalFuel, 0)} kg</b></div>
+      <span>${esc(L('Dose média de radiação'))}</span><b>${fmt(typeof avgDose === 'function' ? avgDose() : 0, 0)} mSv</b><span>Custo da regulação térmica</span><b>${fmt(S.stats.thermalKwh, 1)} kWh · ${fmt(S.stats.thermalFuel, 0)} kg</b></div>
     ${S.dead.length ? `<h4>Perdas</h4><p>${S.dead.map(d => `${esc(d.role)} ${esc(d.name)} (dia ${d.day}, ${esc(d.cause)})`).join('<br>')}</p>` : ''}
     <h4>Desafios</h4><p>${S.stats.events.map(x => `${EVENT_INFO[x.type].icon} ${EVENT_INFO[x.type].title}: <b class="${x.ok ? 'green' : 'red'}">${x.grade}</b>`).join('<br>') || '—'}</p>
     <div class="row"><button class="btn ${S.fail ? '' : 'primary'}" data-ui="journey">Jogar novamente</button><button class="btn" data-ui="saves">📂 ${esc(L(K('Jogos salvos', 'Saved games', 'Partidas guardadas')))}</button><button class="btn" data-ui="shop">✦ Loja (${Save.data.credits})</button><button class="btn" data-ui="quit">Título</button></div></div>`;
@@ -768,7 +781,7 @@ function renderUI() {
     const map = { saves: savesScreen, story: storyScreen, title: titleScreen, journey: journeyScreen, history: historyScreen, settings: () => settingsScreen(false), shop: shopScreen, quiz: quizScreen, avatar: () => U.avatarDirty ? avatarScreen() : U.cache.scr, lobby: lobbyScreen };
     scr = (map[U.screen] || titleScreen)();
     U.avatarDirty = false;
-  } else if (Net.role === 'client' && !['ship', 'station', 'detour', 'planet', 'migration', 'colony', 'end'].includes(S.scene)) {
+  } else if (Net.role === 'client' && !['earth', 'ship', 'station', 'detour', 'planet', 'migration', 'colony', 'end'].includes(S.scene)) {
     scr = `<div class="panel center"><h2>AGUARDANDO O COMANDANTE</h2><p class="muted">${{ intro: 'Narração da introdução', earth: 'Caminhando pela Terra poluída', setup: 'Montando a nave com a verba limitada', launch: 'Decolagem!' }[S.scene] || '...'}</p><p>Você é: <b>${esc(Net.myRoleName || '')}</b></p></div>`;
   } else {
     switch (S.scene) {
@@ -804,6 +817,7 @@ function renderUI() {
   }
   if (S && U.screen === 'game' && !hud && !['intro', 'launch', 'end'].includes(S.scene) && !(S.scene === 'earth' && U.comms)) hud = assistMini() + lessonCard();
   if (U.help && S && U.screen === 'game') modal = helpPanel();
+  if (U.voicePick) modal = voicePickPanel();
   sitePlayMode();
   const gameEl = document.getElementById('game'); const sc = S && U.screen === 'game' ? S.scene : 'menu'; if (gameEl.dataset.scene !== sc) gameEl.dataset.scene = sc;
   { const ov = (!!modal || !!U.help || !!(U.earth && S && S.scene === 'earth' && (U.earth.panel || U.earth.dialog || U.earth.diary || U.comms))) ? '1' : ''; if (gameEl.dataset.ov !== ov) gameEl.dataset.ov = ov; }
@@ -849,7 +863,26 @@ function enterGameFullscreen() {
   try { if (!document.fullscreenElement && el.requestFullscreen) el.requestFullscreen({ navigationUI: 'hide' }).catch(() => {}); } catch (e) { /* sem permissão: o CSS já ocupa a janela */ }
 }
 function exitGameFullscreen() { try { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch (e) { /* */ } }
-UIH.setLang = l => { I18n.set(l); };
+UIH.setLang = l => { const was = I18n.lang; I18n.set(l); if (l !== was) U.voicePick = true; };
+// escolha da voz depois de trocar o idioma (as vozes do navegador variam muito de qualidade)
+function voicePickPanel() {
+  const st = Save.data.settings; const cur = (st.voices || {})[I18n.lang] || '';
+  const list = Narrator.voices().slice(0, 10);
+  const row = (name, label) => `<div class="vrow ${cur === name ? 'on' : ''}"><span>${esc(label)}</span><button class="btn tiny" data-ui="voiceTry" data-arg="${esc(name)}">▶ ${esc(L('Ouvir'))}</button><button class="btn tiny ${cur === name ? 'primary' : ''}" data-ui="voiceUse" data-arg="${esc(name)}">${cur === name ? '✔ ' : ''}${esc(L('Usar esta'))}</button></div>`;
+  return `<div class="modal-bg"><div class="panel center voicepick" data-stop="1"><button class="x" data-ui="voiceClose">✕</button>
+    <h2>🔊 ${esc(L('Escolha a voz do jogo'))}</h2><p class="small muted">${esc(L('Ouça e escolha a voz mais natural para este idioma. Dá para mudar depois nas configurações.'))}</p>
+    ${list.length ? row('', L('Automática (a mais natural)')) + list.map(v => row(v.name, v.name + (v.localService ? '' : ' ☁'))).join('') : `<p class="orange">${esc(L('Este navegador não tem vozes para este idioma.'))}</p>`}
+    <div class="row" style="justify-content:center"><button class="btn primary" data-ui="voiceClose">${esc(L('Pronto'))}</button></div></div></div>`;
+}
+UIH.voiceTry = name => {
+  const v = name ? Narrator.voices().find(x => x.name === name) : null;
+  Narrator.voice = v || null; if (!v) Narrator.pickVoice();
+  const keep = Narrator.pickVoice; if (v) Narrator.pickVoice = () => v; // só para este teste
+  Narrator.say(K('Olá, Comandante. Esta é a voz do computador de bordo.', 'Hello, Commander. This is the onboard computer voice.', 'Hola, Comandante. Esta es la voz de la computadora de a bordo.'));
+  Narrator.pickVoice = keep;
+};
+UIH.voiceUse = name => { const st = Save.data.settings; st.voices = st.voices || {}; st.voices[I18n.lang] = name; Save.write(); Narrator.voice = null; Narrator.pickVoice(); };
+UIH.voiceClose = () => { U.voicePick = false; };
 UIH.fullscreen = () => { if (document.fullscreenElement) exitGameFullscreen(); else enterGameFullscreen(); };
 UIH.startGame = journey => {
   enterGameFullscreen();

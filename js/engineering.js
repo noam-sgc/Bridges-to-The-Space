@@ -49,7 +49,7 @@ function curMass() {
 const massFactor = () => clamp(curMass() / REF_MASS, 0.7, 1.5);
 
 // ---------- órbita ----------
-const PLANET = { R: 3390, mu: 42828 }; // km, km³/s² (planeta rochoso médio)
+const PLANET = { R: 6050, mu: 337500 }; // km, km³/s²: raio 0,95 R⊕ e 0,85 M⊕ → gravidade 0,94 g (coerente com a atmosfera de 0,93 atm)
 const FUEL_SCALE = 0.1;                // escala do jogo: o tanque de 500 kg não é o foguete inteiro
 const ORBIT_ALTS = [400, 800, 2400];   // km
 const BELT = [1000, 1800];             // cinturão de radiação (km)
@@ -111,7 +111,7 @@ function landingFuel() { // combustível do pouso: nave de pouso/principal + bai
   const _pa = ACTIONS.planetAnalyze; ACTIONS.planetAnalyze = function (p, a) { const n = S.planet.analyzed.length; _pa(p, a); if (S.planet.analyzed.length > n) orbitDay(); };
   const _ch = ACTIONS.challenge; ACTIONS.challenge = function (p, a) { const n = S.planet.challenges.length; _ch(p, a); if (S.planet.challenges.length > n) orbitDay(); };
   const _ps = planetScreen;
-  planetScreen = function () { const h = _ps(); return S && S.orbit ? h.replace('<div class="scroll">', '<div class="scroll">' + orbitPanel()) : h; };
+  planetScreen = function () { const h = _ps(); return S && S.orbit ? h.replace('<!--orbit-->', orbitPanel()) : h; };
   const _ms = migrationScreen;
   migrationScreen = function () {
     const h = _ms(); if (!S || !S.orbit) return h;

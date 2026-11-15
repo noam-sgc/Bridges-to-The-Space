@@ -53,6 +53,10 @@ function registerFnPatterns() {
   P(/^A estrela se aproxima: o lado do Sol sobe para \+(\d+) °C\. Feche as cortinas\.$/, 'The star approaches: the sunlit side climbs to +$1 °C. Close the blinds.', 'La estrella se acerca: el lado al Sol sube a +$1 °C. Cierra las cortinas.');
   P(/^(Aquecedor|Resfriador) (ligado|desligado)\.$/, (m, a, b) => `${a === 'Aquecedor' ? 'Heater' : 'Cooler'} ${b === 'ligado' ? 'on' : 'off'}.`, (m, a, b) => `${a === 'Aquecedor' ? 'Calefactor' : 'Enfriador'} ${b === 'ligado' ? 'encendido' : 'apagado'}.`);
   P(/^Sem energia: (Aquecedor|Resfriador) desligou\.$/, (m, a) => `Out of energy: the ${a === 'Aquecedor' ? 'heater' : 'cooler'} shut off.`, (m, a) => `Sin energía: el ${a === 'Aquecedor' ? 'calefactor' : 'enfriador'} se apagó.`);
+  P(/^☢ (.+): (\d+) mSv de radiação acumulada\. Cansaço e enjoo\.$/, '☢ $1: $2 mSv of accumulated radiation. Fatigue and nausea.', '☢ $1: $2 mSv de radiación acumulada. Cansancio y náuseas.');
+  P(/^☢ (.+): dose alta de radiação \((\d+) mSv\)\. Risco de adoecer\.$/, '☢ $1: high radiation dose ($2 mSv). Risk of falling ill.', '☢ $1: dosis alta de radiación ($2 mSv). Riesgo de enfermar.');
+  P(/^☢ (.+) está com enjoo de radiação\.$/, '☢ $1 has radiation sickness.', '☢ $1 tiene náuseas por radiación.');
+  P(/^Pouso de emergência: combustível curto \((\d+) de (\d+) kg\)\. O casco sofreu e alguém se feriu\.$/, 'Emergency landing: propellant short ($1 of $2 kg). The hull took damage and someone got hurt.', 'Aterrizaje de emergencia: combustible escaso ($1 de $2 kg). El casco sufrió y alguien se hirió.');
   P(/^✔ Rotina: (.+)$/, (m, a) => `✔ Routine: ${t(a)}`, (m, a) => `✔ Rutina: ${t(a)}`);
   P(/^Troca feita: (.+)$/, (m, a) => `Trade done: ${t(a)}`, (m, a) => `Intercambio hecho: ${t(a)}`);
   P(/^Análise de (.+) concluída\.\s*(.*)$/, (m, a, r) => `${t(a)} analysis complete.${r ? ' ' + t(r) : ''}`, (m, a, r) => `Análisis de ${low(t(a))} completado.${r ? ' ' + t(r) : ''}`);

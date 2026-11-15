@@ -115,6 +115,7 @@ function tickCity(dt) {
   } else { E.p.moving = false; if (E.target != null && E.dialog) { const d = E.target - E.p.x; if (Math.abs(d) > 3) { E.p.x += Math.sign(d) * 62 * dt; E.p.face = Math.sign(d); E.p.moving = true; E.p.walkT += dt; } else E.target = null; } }
 }
 function cityComms() {
+  if (typeof Net !== 'undefined' && Net.role === 'client') { if (S) S.toast = { text: 'O Comandante embarca todos no foguete quando estiver pronto.', kind: 'info', t: 3, id: Math.random() }; return; } // só o Comandante decide a partida
   U.comms = 1; U.earth.panel = null; U.earth.dialog = null; U.earth.diary = false; Sfx.alarm();
   Narrator.say(F('comms.selected'));
 }

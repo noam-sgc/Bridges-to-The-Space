@@ -5,7 +5,7 @@
   --bg: #05061a; --bg2: #0b1030; --panel: rgba(9, 14, 42, 0.94); --panel2: #111a46;
   --line: #2f7fff; --cyan: #3cd2ff; --cyan2: #8ff0ff; --text: #e8f1ff; --muted: #8fa3d6;
   --orange: #ff8a2a; --red: #ff4a5a; --green: #46e08a; --yellow: #ffd23f;
-  --pix: "Press Start 2P", monospace; --vt: "VT323", monospace; --sk: "Silkscreen", monospace;
+  --pix: "Press Start 2P", monospace; --vt: "Pixelify Sans", "VT323", monospace; /* Pixelify só tem o "l" (carregado com text=l) */ --sk: "Silkscreen", monospace;
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -593,3 +593,18 @@ img.pxe { width: 1.15em; height: 1.15em; image-rendering: pixelated; image-rende
 .massbar{height:6px;background:#1a2342;margin:3px 0 5px}.massbar i{display:block;height:100%}
 .orbitbox{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.orbitinfo{flex:1;min-width:180px;font-size:.85em}
 .quizcats{margin:8px 0}
+/* órbita em 3 passos */
+.stage-panel .lead { font-size: 1.05em; margin: 0.2em 0 0.5em; }
+.pstep { display: flex; gap: 0.6em; align-items: flex-start; border: 2px solid #2b3a78; padding: 0.4em 0.6em; margin: 0.35em 0; background: rgba(8, 14, 44, 0.7); }
+.pstep.done { border-color: #3fbf6a; }
+.pnum { min-width: 1.6em; height: 1.6em; display: flex; align-items: center; justify-content: center; font-family: var(--sk); background: #2f5bd7; color: #fff; }
+.pstep.done .pnum { background: #3fbf6a; }
+.pstep b { display: block; font-family: var(--sk); } .pstep > div > small { display: block; color: var(--muted); margin-bottom: 0.25em; }
+.pbtns { display: flex; flex-wrap: wrap; gap: 0.3em; }
+.pres { flex-basis: 100%; font-size: 0.88em; } .pres span { color: var(--muted); } .pres.bad { color: #ff8a8a; }
+/* projeto da missão: restrições e requisitos */
+.cstbox { border: 2px solid #2b3a78; padding: 0.3em 0.45em; margin: 0.4em 0; background: rgba(8, 14, 44, 0.7); font-size: 0.85em; }
+.cstbox h4 { margin: 0 0 0.2em; font-size: 0.95em; }
+.cst { display: flex; justify-content: space-between; gap: 0.4em; padding: 0.1em 0; } .cst b { color: #7dffb0; } .cst.bad b { color: #ffb15c; }
+.reqs { display: flex; flex-direction: column; gap: 0.15em; margin: 0.2em 0 0.5em; font-size: 0.95em; }
+.voicepick .vrow { display: flex; align-items: center; gap: 0.4em; padding: 0.2em 0; border-bottom: 1px dashed #2a3a7a; } .voicepick .vrow span { flex: 1; text-align: left; } .voicepick .vrow.on span { color: var(--yellow); }

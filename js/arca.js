@@ -8,7 +8,7 @@
 'use strict';
 
 const SLEEP_DECAY = 5;              // sono (humor) por dia, acordado
-const HUNGER_DECAY = 2 * SLEEP_DECAY; // a fome cai o dobro do sono
+const HUNGER_DECAY = SLEEP_DECAY; // a fome cai no mesmo ritmo do sono
 const SLEEP_DUR = 9;                // segundos dormindo
 const ARCA_COLORS = { 2: '#46d8ff', 3: '#ffd34c', 4: '#ff7ac8' };
 const colonyAll = () => S.crew.concat((S.colony && S.colony.people) || []);
@@ -162,7 +162,7 @@ function drawPeople(cam) {
 function needBars(c) {
   if (!c) return '';
   const lowH = c.saciedade < 30, lowS = c.humor < 30;
-  return `<div class="rb big needs" title="${esc(L(K('Fome cai 2x mais rápido que o sono', 'Hunger drops 2x faster than sleep', 'El hambre baja 2 veces más rápido que el sueño')))}"><span class="ic">🍱</span><span class="nm">${esc(L(K('Fome', 'Hunger', 'Hambre')))}</span>${bar(c.saciedade, 100)}<span class="v ${lowH ? 'red blink' : ''}">${fmt(c.saciedade, 0)}</span>
+  return `<div class="rb big needs" title="${esc(L(K('A fome cai no mesmo ritmo do sono', 'Hunger drops at the same pace as sleep', 'El hambre baja al mismo ritmo que el sueño')))}"><span class="ic">🍱</span><span class="nm">${esc(L(K('Fome', 'Hunger', 'Hambre')))}</span>${bar(c.saciedade, 100)}<span class="v ${lowH ? 'red blink' : ''}">${fmt(c.saciedade, 0)}</span>
     <span class="ic">😴</span><span class="nm">${esc(L(K('Sono', 'Sleep', 'Sueño')))}</span>${bar(c.humor, 100)}<span class="v ${lowS ? 'red blink' : ''}">${fmt(c.humor, 0)}</span></div>`;
 }
 function eatBlock() {

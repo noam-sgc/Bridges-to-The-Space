@@ -273,6 +273,8 @@ const RADIO_MESSAGES = [
 ];
 
 // Locais de pouso em Pontes-01b
+// gravidade na superfície (g = massa / raio², em gravidades da Terra); "~" = massa ou raio estimado
+const EXO_GRAV = { proxb: '~0,9 g', trap1e: '0,82 g', k442b: '~1,3 g', lhs1140b: '1,9 g', teeb: '~1,0 g', k452b: '~1,9 g', cnc55e: '2,3 g', pontes: '0,94 g' };
 const LANDING_SITES = [
   { id: 'vale', name: 'Vale Equatorial', pros: 'Temperatura amena (≈ 19 °C), rios próximos', cons: 'Tempestades de poeira sazonais', score: { atmosfera: 1, agua: 2, solo: 1, radiacao: 1 } },
   { id: 'planalto', name: 'Planalto Norte', pros: 'Solo firme e rico em minerais', cons: 'Frio intenso (≈ −5 °C), pouca água', score: { atmosfera: 1, agua: 0, solo: 2, radiacao: 0 } },

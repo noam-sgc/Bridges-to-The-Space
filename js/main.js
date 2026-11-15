@@ -81,7 +81,11 @@ function update(dt) {
   const host = Net.role !== 'client';
   const k = timeScale();
   if (S.crew) jumpTick(me(), dt); // só o próprio jogador pula; os outros chegam pela rede
-  if (S.scene === 'earth' && host) tickCity(dt);
+  if (S.scene === 'earth') {
+    if (!U.earth) cityInit(); // quem entrou na sala também explora a cidade
+    tickCity(dt);
+    if (Net.role && host) { S.cityPos = S.cityPos || {}; const p = U.earth.p; S.cityPos[U.me] = { x: p.x, face: p.face, moving: p.moving, walkT: p.walkT, jy: p.jy || 0 }; }
+  }
   if (S.scene === 'colony') {
     const c = me(); if (c) moveColonyHuman(c, dt);
     if (host && !(!Net.role && (U.panel === 'menu' || U.help))) stepScaled(tickColony, dt, k); // só no solo o menu e a ajuda pausam a colônia (no multiplayer o jogo segue para todos)
@@ -119,10 +123,18 @@ function draw(dt) {
   switch (S.scene) {
     case 'intro': drawModeIntro(dt); break;
     case 'earth': {
-      if (Net.role === 'client') { drawIntroBg(dt); break; }
+      if (!U.earth) cityInit();
       const p = U.earth.p;
       drawEarth(dt, p);
-      drawChar(Object.assign({}, crewById('cmd').avatar), 'civil', p.x - R.earthCam, GROUND - (p.jy || 0), p.face, p.moving ? Math.floor(p.walkT * 8) : 0, 'happy');
+      // os outros jogadores da sala, no ponto da cidade em que estão
+      for (const [id, q] of Object.entries(S.cityPos || {})) {
+        if (id === U.me) continue; const o = crewById(id); if (!o) continue;
+        const ox = q.x - R.earthCam; if (ox < -30 || ox > VW + 30) continue;
+        drawChar(Object.assign({}, o.avatar), 'civil', ox, GROUND - (q.jy || 0), q.face, q.moving ? Math.floor((q.walkT || 0) * 8) : 0, 'happy');
+        text(o.name, ox, GROUND - SPR_H - 6, '#7dffb0', 7, 'center');
+      }
+      const mine = crewById(U.me) || crewById('cmd');
+      drawChar(Object.assign({}, mine.avatar), 'civil', p.x - R.earthCam, GROUND - (p.jy || 0), p.face, p.moving ? Math.floor(p.walkT * 8) : 0, 'happy');
       drawGuide();
       break;
     }
@@ -278,7 +290,7 @@ async function boot() {
   await loadFalas();
   I18n.init();
   const sel = document.getElementById('lang');
-  if (sel) { sel.innerHTML = LANGS.map(l => `<option value="${l.id}">${l.flag} ${l.label}</option>`).join(''); sel.value = I18n.lang; sel.addEventListener('change', () => I18n.set(sel.value)); }
+  if (sel) { sel.innerHTML = LANGS.map(l => `<option value="${l.id}">${l.flag} ${l.label}</option>`).join(''); sel.value = I18n.lang; sel.addEventListener('change', () => { const was = I18n.lang; I18n.set(sel.value); if (sel.value !== was) U.voicePick = true; }); }
   Chat.init();
   initCanvas();
   bindUI();
