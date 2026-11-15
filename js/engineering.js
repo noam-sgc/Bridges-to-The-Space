@@ -168,7 +168,7 @@ function orbitPanel() {
       <div>⚖ ${esc(L(K('Massa atual', 'Current mass', 'Masa actual')))}: <b>${Math.round(m)} kg</b> · ⛽ ${Math.round(S.res.combustivel)} kg · ${esc(L(K('pouso daqui', 'landing from here', 'aterrizaje desde aquí')))}: ${landingFuel()} kg</div>
       <div class="small muted">${esc(L(K('Cada análise, desafio ou dia de espera passa 1 dia em órbita. Manobras gastam combustível (equação do foguete).', 'Each analysis, challenge or waiting day spends 1 day in orbit. Maneuvers burn propellant (rocket equation).', 'Cada análisis, desafío o día de espera pasa 1 día en órbita. Las maniobras gastan combustible (ecuación del cohete).')))}</div>
     </div></div>${warn}<div class="opts">${opts}</div>
-    <div class="row"><button class="btn small" data-act="orbitWait">⏳ ${esc(L(K('Esperar 1 dia em órbita', 'Wait 1 day in orbit', 'Esperar 1 día en órbita')))}</button></div>`;
+    <div class="row"><button class="btn primary" data-act="landNow">🛬 ${esc(L(K('Descer para a colônia agora', 'Land at the colony now', 'Descender a la colonia ahora')))}</button> <button class="btn small" data-act="orbitWait">⏳ ${esc(L(K('Esperar 1 dia em órbita', 'Wait 1 day in orbit', 'Esperar 1 día en órbita')))}</button></div>`;
 }
 
 // ---------- lições e perguntas do Quiz ----------

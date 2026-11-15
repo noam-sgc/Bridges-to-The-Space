@@ -1924,7 +1924,24 @@
   "Entrada na sombra: vai esfriar rápido. Desligue o resfriador e ligue o aquecedor.": "Entrada en la sombra: va a enfriar rápido. Apaga el enfriador y enciende el calefactor.",
   "Cortinas fechadas.": "Cortinas cerradas.",
   "Cortinas abertas.": "Cortinas abiertas.",
-  "Regulação térmica": "Regulación térmica"
+  "Regulação térmica": "Regulación térmica",
+  "Prateleira rompida": "Estante rota",
+  "Cabos soltos e faíscas": "Cables sueltos y chispas",
+  "Uma prateleira do compartimento de carga rompeu e as caixas de suprimento ficaram presas no alto, flutuando perto do teto. Pule (J) por baixo delas para pegá-las antes que o tempo acabe.": "Una estantería de la bodega se rompió y las cajas de suministros quedaron en lo alto, flotando cerca del techo. Salte (J) debajo para alcanzarlas antes de que se acabe el tiempo.",
+  "Um impacto soltou cabos que faíscam pelo chão da nave. Pule (J) sobre eles ao atravessar os corredores: quem pisa leva choque e fica lento. Alguém precisa religar o disjuntor no Suporte à vida.": "Un impacto soltó cables que chispean por el suelo de la nave. Salte (J) sobre ellos al cruzar los pasillos: quien los pisa recibe una descarga y se vuelve lento. Alguien debe reactivar el disyuntor en Soporte vital.",
+  "Pulem para alcançar as caixas no alto (tecla J).": "Salten para alcanzar las cajas en lo alto (tecla J).",
+  "pular para pegar as caixas de suprimento.": "saltar para agarrar las cajas de suministros.",
+  "Recuperar as caixas de suprimento (pule para pegar!)": "Recuperar las cajas de suministros (¡salte para agarrarlas!)",
+  "As caixas estão presas lá em cima! Dá para alcançar pulando.": "¡Las cajas están atascadas allá arriba! Se alcanzan saltando.",
+  "Caixas recuperadas: +3 kg de ração, +20 L de água e +1 peça de reposição.": "Cajas recuperadas: +3 kg de ración, +20 L de agua y +1 pieza de repuesto.",
+  "As caixas ficaram presas no alto e parte do estoque se perdeu.": "Las cajas quedaron en lo alto y parte del inventario se perdió.",
+  "Pulem sobre os cabos (tecla J) e religuem o disjuntor no Suporte à vida.": "Salten sobre los cables (tecla J) y reactiven el disyuntor en Soporte vital.",
+  "engenheiro ao disjuntor; todos pulam os cabos.": "ingeniero al disyuntor; todos saltan los cables.",
+  "Engenheiro: religar o disjuntor no Suporte à vida": "Ingeniero: reactivar el disyuntor en Soporte vital",
+  "Cuidado com os cabos no chão: pulem por cima!": "¡Cuidado con los cables en el suelo: salten por encima!",
+  "Disjuntor religado e ninguém levou choque: pulos perfeitos!": "Disyuntor reactivado y nadie recibió descargas: ¡saltos perfectos!",
+  "Os cabos continuaram faiscando e o suporte à vida ficou instável.": "Los cables siguieron chispeando y el soporte vital quedó inestable.",
+  "Sem choques: pulos perfeitos": "Sin descargas: saltos perfectos"
  },
  "patterns": [
   [

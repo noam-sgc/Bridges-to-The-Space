@@ -186,7 +186,7 @@ function applySetup() {
 function buildSchedule() {
   const route = ROUTES.find(r => r.id === S.setup.route);
   const n = S.journey === 'curta' ? 4 : 9;
-  const pool = ['termico', 'asteroides', 'combFalta', 'combVaz', 'oxigenio', 'painel', 'lixo', 'radio', 'contaminacao', 'traje', 'doenca', 'tempestade'];
+  const pool = ['termico', 'asteroides', 'combFalta', 'combVaz', 'oxigenio', 'painel', 'lixo', 'radio', 'contaminacao', 'traje', 'doenca', 'tempestade', 'prateleira', 'destrocos'];
   const weight = { asteroides: route.risk, tempestade: route.risk, termico: 1.2 };
   const chosen = [];
   const bag = pool.slice();
@@ -542,6 +542,15 @@ function onPlanet() { return !!S && (['planet', 'migration', 'colony'].includes(
 // fim da jornada em Pontes-01b quando não há mais como avançar: conta como final bom
 function planetEnding(note) {
   if (!S || S.scene === 'end') return;
+  // ainda em órbita (sem colônia) e com tripulação: em vez de encerrar, a nave faz um pouso forçado e a colônia começa
+  if (!S.colony && ['planet', 'migration'].includes(S.scene) && S.crew.filter(c => c.alive).length >= 3 && crewById('cmd') && crewById('cmd').alive && typeof startColony === 'function') {
+    const site = LANDING_SITES.find(x => x.id === (S.planet && S.planet.site)) || bestSite();
+    S.planet = S.planet || {}; S.planet.site = site.id;
+    damageSys('casco', 20); moral(-5);
+    toast('Pouso forçado em Pontes-01b! A colônia começa em condições difíceis.', 'bad');
+    startColony(site, 1);
+    return;
+  }
   const C = S.colony;
   const site = C ? C.site : (S.planet && S.planet.site && (LANDING_SITES.find(x => x.id === S.planet.site) || {}).name) || 'Pontes-01b';
   addPoints(C ? 120 : 80, 'Chegada a Pontes-01b');
@@ -566,10 +575,6 @@ function checkStuck(dt) {
       if (S.stuckFood >= 2) return fail('A comida acabou e não há como produzir mais: a tripulação não chegaria viva a Pontes-01b.');
     } else { S.stuckFood = 0; S.stuckFoodWarned = false; }
     if (sc === 'station' && S.res.combustivel < 1) return fail('Sem combustível na Estação Ponte-Alfa: a nave não consegue mais partir.');
-  }
-  if (sc === 'migration') {
-    const need = landingFuel();
-    if (S.res.combustivel < need) return planetEnding('Sem combustível para pousar, a tripulação ficou em órbita de Pontes-01b enviando dados e preparando o caminho para as próximas naves.');
   }
   if (sc === 'colony' && S.colony) {
     const C = S.colony, solarCost = (typeof CCOST !== 'undefined' && CCOST.solar[1]) ? CCOST.solar[1].kwh : 8;

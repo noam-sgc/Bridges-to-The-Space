@@ -32,7 +32,7 @@ function moveHuman(c, dt) {
     return;
   }
   if (U.clickTarget) { c.tx = U.clickTarget.x; c.tdeck = U.clickTarget.deck; stepMove(c, dt); if (!c.moving) U.clickTarget = null; return; }
-  const sp = (c.status === 'ferido' ? 40 : 70) * (c.sickness ? 0.6 : 1) * (keys.ShiftLeft || keys.ShiftRight ? RUN_MULT : 1);
+  const sp = (c.status === 'ferido' ? 40 : 70) * (c.sickness ? 0.6 : 1) * (c.stun > 0 ? 0.35 : 1) * (keys.ShiftLeft || keys.ShiftRight ? RUN_MULT : 1);
   let dx = (Rr ? 1 : 0) - (L ? 1 : 0);
   if (dx) { c.x = clamp(c.x + dx * sp * dt, 64, WORLD_W - 70); c.face = dx; c.moving = true; c.walkT += dt; if (Math.floor(c.walkT * 8) % 4 === 0 && Math.random() < 0.05) Sfx.step(); }
   else c.moving = false;
@@ -174,7 +174,7 @@ function escAll() {
 function jumpAction() {
   if (!S) return;
   if (S.scene === 'earth') { const E = U.earth; if (!E || U.comms || E.dialog || E.panel || cityBusy()) return; jumpStart(E.p, 'earth'); return; }
-  const c = me(); if (!c || !c.alive || U.panel || c.climb || c.csleep) return;
+  const c = me(); if (!c || !c.alive || U.panel || c.climb > 0 || c.csleep) return;
   if (S.scene === 'colony' && S.colony.tut === 0) return;
   if (S.scene === 'colony' || S.scene === 'ship') jumpStart(c, S.scene);
 }
@@ -188,7 +188,7 @@ function spaceAction() {
   if (S.scene === 'ship') {
     const trash = S.event && S.event.type === 'lixo' && S.event.phase === 'run' && S.trash.some(t => t.deck === c.deck && Math.abs(t.x - c.x) < 16);
     if (trash || stationAt(c)) return interact();
-    if (!c.climb) jumpStart(c, 'ship');
+    if (!(c.climb > 0)) jumpStart(c, 'ship');
   }
 }
 window.addEventListener('keydown', e => {
@@ -223,7 +223,7 @@ window.addEventListener('keydown', e => {
     return;
   }
   if (S.scene !== 'ship') return;
-  if (e.code === 'Space') spaceAction();
+  if (e.code === 'Space') { if (U.panel && STATIONS[U.panel]) UIH.closePanel(); else spaceAction(); }
   if (e.code === 'KeyE') { if (U.panel && STATIONS[U.panel]) UIH.closePanel(); else interact(); }
   if (e.code === 'KeyR') { U.panel === 'report' ? UIH.closePanel() : UIH.panel('report'); }
   if (e.code === 'KeyT') { U.panel === 'crew' ? UIH.closePanel() : UIH.panel('crew'); }

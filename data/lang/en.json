@@ -1923,7 +1923,24 @@
   "Entrada na sombra: vai esfriar rápido. Desligue o resfriador e ligue o aquecedor.": "Entering the shade: it will cool down fast. Turn off the cooler and turn on the heater.",
   "Cortinas fechadas.": "Blinds closed.",
   "Cortinas abertas.": "Blinds open.",
-  "Regulação térmica": "Thermal regulation"
+  "Regulação térmica": "Thermal regulation",
+  "Prateleira rompida": "Broken shelf",
+  "Cabos soltos e faíscas": "Loose cables and sparks",
+  "Uma prateleira do compartimento de carga rompeu e as caixas de suprimento ficaram presas no alto, flutuando perto do teto. Pule (J) por baixo delas para pegá-las antes que o tempo acabe.": "A shelf in the cargo bay broke and the supply boxes are stuck up high, floating near the ceiling. Jump (J) beneath them to grab them before time runs out.",
+  "Um impacto soltou cabos que faíscam pelo chão da nave. Pule (J) sobre eles ao atravessar os corredores: quem pisa leva choque e fica lento. Alguém precisa religar o disjuntor no Suporte à vida.": "An impact knocked cables loose and they spark along the ship floor. Jump (J) over them when crossing the corridors: stepping on one shocks you and slows you down. Someone must reset the breaker at Life Support.",
+  "Pulem para alcançar as caixas no alto (tecla J).": "Jump to reach the boxes up high (J key).",
+  "pular para pegar as caixas de suprimento.": "jump to grab the supply boxes.",
+  "Recuperar as caixas de suprimento (pule para pegar!)": "Recover the supply boxes (jump to grab them!)",
+  "As caixas estão presas lá em cima! Dá para alcançar pulando.": "The boxes are stuck up there! You can reach them by jumping.",
+  "Caixas recuperadas: +3 kg de ração, +20 L de água e +1 peça de reposição.": "Boxes recovered: +3 kg of rations, +20 L of water and +1 spare part.",
+  "As caixas ficaram presas no alto e parte do estoque se perdeu.": "The boxes stayed stuck up high and part of the stock was lost.",
+  "Pulem sobre os cabos (tecla J) e religuem o disjuntor no Suporte à vida.": "Jump over the cables (J key) and reset the breaker at Life Support.",
+  "engenheiro ao disjuntor; todos pulam os cabos.": "engineer to the breaker; everyone jumps the cables.",
+  "Engenheiro: religar o disjuntor no Suporte à vida": "Engineer: reset the breaker at Life Support",
+  "Cuidado com os cabos no chão: pulem por cima!": "Watch out for the cables on the floor: jump over them!",
+  "Disjuntor religado e ninguém levou choque: pulos perfeitos!": "Breaker reset and nobody got shocked: perfect jumps!",
+  "Os cabos continuaram faiscando e o suporte à vida ficou instável.": "The cables kept sparking and life support became unstable.",
+  "Sem choques: pulos perfeitos": "No shocks: perfect jumps"
  },
  "patterns": [
   [

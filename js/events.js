@@ -783,22 +783,37 @@ ACTIONS.toMigration = () => {
   narrate('Migração. Decida o destino da expedição e organize a chegada, considerando as investigações e os recursos disponíveis.');
 };
 ACTIONS.chooseSite = p => { S.planet.site = p.id; };
+// atalho: descer para a colônia já, sem enfrentar todos os desafios de órbita (a colônia começa mais difícil)
+ACTIONS.landNow = () => {
+  if (S.scene !== 'planet' && S.scene !== 'migration') return;
+  if (!S.planet.site) S.planet.site = bestSite().id;
+  S.stage = 4; S.scene = 'migration';
+  ACTIONS.land();
+};
 ACTIONS.land = () => {
   if (!S.planet.site) return toast('Escolha um local de pouso.', 'warn');
   const site = LANDING_SITES.find(s => s.id === S.planet.site);
   const need = landingFuel();
-  const reasons = [];
-  if (S.res.combustivel < need) reasons.push(`Combustível insuficiente para o pouso (precisa de ${need} kg).`);
+  const reasons = []; // só o que impede mesmo de pousar; o resto vira dificuldade na colônia
   let score = 0; const det = [];
   for (const k in site.score) { const known = S.planet.analyzed.includes(k); const v = site.score[k]; score += known ? v : Math.min(v, 0) - (known ? 0 : 0.5); det.push(k); }
   score += S.planet.challenges.filter(c => c.ok).length;
   if (has('sementes')) score += 1;
-  const food = S.res.comida + Object.values(S.food.fresh).reduce((a, b) => a + b, 0);
-  if (food < 8 && !has('sementes') && S.res.plantacao < 15) reasons.push('Sem comida nem sementes para começar a colônia.');
-  if (score < 3) reasons.push('O local escolhido não foi bem investigado ou é hostil demais para a colônia.');
+  // pouso de emergência: sem combustível suficiente a nave desce "de barriga" (dano no casco e tripulante ferido)
+  if (S.res.combustivel < need) {
+    damageSys('casco', 25); moral(-5);
+    const v = pick(alive().filter(c => c.id !== 'cmd')); if (v) v.status = 'ferido';
+    toast('Pouso de emergência: combustível curto (' + Math.round(S.res.combustivel) + ' de ' + need + ' kg). O casco sofreu e alguém se feriu.', 'bad');
+  }
+  // local pouco investigado ou hostil: a colônia começa mais difícil, mas começa
+  if (score < 3) {
+    moral(-4); addRes('energia', -Math.min(S.res.energia, 15), 'Terreno hostil'); addRes('agua', -Math.min(S.res.agua, 80), 'Terreno hostil');
+    score = Math.max(1, score);
+    toast('Terreno hostil ou pouco investigado: a colônia começa com menos energia e água.', 'warn');
+  }
   if (!has('pouso')) {
     const r = d20();
-    if (r < 6) { damageSys('casco', 40); addRes('casco', -40, 'Pouso difícil'); if (sysHp('casco') <= 0) reasons.push('A nave principal se partiu no pouso.'); else { const v = pick(alive().filter(c => c.id !== 'cmd')); if (v && d10() <= 3) kill(v, 'pouso difícil'); } }
+    if (r < 6) { damageSys('casco', 40); addRes('casco', -40, 'Pouso difícil'); const v = pick(alive().filter(c => c.id !== 'cmd')); if (v && d10() <= 3) kill(v, 'pouso difícil'); }
   }
   addRes('combustivel', -Math.min(need, S.res.combustivel), 'Pouso');
   if (S.fail) return;

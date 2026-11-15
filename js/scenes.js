@@ -331,6 +331,7 @@ function drawShipInterior(dt, me) {
   }
   // lixo flutuante
   for (const t of S.trash) { const y = DECKS[t.deck].floor - 14 + Math.sin(R.t * 2 + t.ph) * 4; cx.drawImage(getItemSprite(t.kind), Math.round(t.x - 4), Math.round(y)); }
+  if (typeof drawJumpHazards === 'function') drawJumpHazards();
   // tripulação
   const list = S.crew.slice().sort((a, b) => (a === me) - (b === me));
   for (const c of list) {

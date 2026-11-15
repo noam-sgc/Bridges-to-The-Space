@@ -40,8 +40,13 @@ function setHTML(id, html) {
   if (U.cache[id] === html) return;
   U.cache[id] = html;
   const el = document.getElementById(id);
-  if (el) el.innerHTML = pixelEmoji(I18n.dom(html));
+  if (el) {
+    el.innerHTML = pixelEmoji(I18n.dom(html));
+    const od = U.openDet; // mantém abertas as seções "Mais opções" etc. entre atualizações
+    if (od) el.querySelectorAll('details').forEach(d => { const s = d.querySelector('summary'); if (s && od[s.textContent.trim()]) d.open = true; });
+  }
 }
+document.addEventListener('toggle', e => { const d = e.target; if (d && d.tagName === 'DETAILS' && typeof U !== 'undefined') { const s = d.querySelector('summary'); if (s) (U.openDet = U.openDet || {})[s.textContent.trim()] = d.open; } }, true);
 
 // ---------- ícones pixelados: cada emoji vira uma imagem 12×12 ampliada sem suavização ----------
 const EMOJI_RE = /(?:\p{Emoji_Presentation}|\p{Extended_Pictographic}\uFE0F)(?:\u200D(?:\p{Emoji_Presentation}|\p{Extended_Pictographic}\uFE0F?))*\uFE0F?/gu;
