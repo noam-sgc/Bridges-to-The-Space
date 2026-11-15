@@ -37,6 +37,7 @@ function bar(v, max, cls = '', inverse = false) {
 // o foco que fica num botão depois do clique faria Espaço/Enter apertarem o botão de novo em vez de agir no jogo
 function dropFocus() { const a = document.activeElement; if (a && a !== document.body && !['INPUT', 'SELECT', 'TEXTAREA'].includes(a.tagName)) a.blur(); }
 function setHTML(id, html) {
+  if (id === 'modal' && U.modalOverride) html = U.modalOverride; // menu/config da barra rápida por cima de tudo
   if (U.cache[id] === html) return;
   U.cache[id] = html;
   const el = document.getElementById(id);
@@ -141,6 +142,7 @@ function settingsScreen(inGame) {
   const st = Save.data.settings;
   return `<div class="panel center">
     <h2>CONFIGURAÇÕES</h2>
+    <div class="row"><button class="btn ${st.mute ? '' : 'on'}" data-ui="qAudio">${st.mute ? '🔇' : '🔊'} ${esc(L(K('Áudio (música e voz)', 'Audio (music and voice)', 'Audio (música y voz)')))}: <b>${esc(L(st.mute ? 'DESLIGADO' : 'LIGADO'))}</b></button><button class="btn ${st.sfxOff ? '' : 'on'}" data-ui="qSfx">${st.sfxOff ? '🔕' : '🔔'} ${esc(L(K('Efeitos sonoros', 'Sound effects', 'Efectos de sonido')))}: <b>${esc(L(st.sfxOff ? 'DESLIGADO' : 'LIGADO'))}</b></button></div>
     <label class="field">Música <input type="range" min="0" max="1" step="0.05" value="${st.music}" data-set="music"></label>
     <label class="field">Efeitos <input type="range" min="0" max="1" step="0.05" value="${st.sfx}" data-set="sfx"></label>
     <label class="check"><input type="checkbox" data-set="narration" ${st.narration ? 'checked' : ''}> Narração por voz (pt-BR)</label>
@@ -650,7 +652,7 @@ function fundPanel() {
 }
 function menuPanel() {
   return `<div class="modal-bg" data-ui="closePanel"><div class="panel center" data-stop="1"><h2>PAUSA</h2>
-    <div class="menu"><button class="mbtn" data-ui="closePanel">▶ Continuar</button><button class="mbtn" data-ui="panel" data-arg="settings">⚙ Configurações</button>${Net.role !== 'client' ? `<button class="mbtn" data-ui="saveNow">💾 ${esc(L('Salvar progresso'))}</button>` : ''}<button class="mbtn" data-ui="fullscreen">⛶ ${esc(L('Tela cheia'))}</button>
+    <div class="menu"><button class="mbtn" data-ui="closePanel">▶ Continuar</button><button class="mbtn" data-ui="qSettingsOpen">⚙ Configurações</button>${Net.role !== 'client' ? `<button class="mbtn" data-ui="saveNow">💾 ${esc(L('Salvar progresso'))}</button>` : ''}<button class="mbtn" data-ui="fullscreen">⛶ ${esc(L('Tela cheia'))}</button>
     ${U.confirmQuit ? '<button class="mbtn red" data-ui="quit">Confirmar: sair para o título</button>' : '<button class="mbtn" data-ui="quitAsk">⏏ Sair para o título</button>'}</div>
     <div class="row" style="justify-content:center">${LANGS.map(l => `<button class="chip ${I18n.lang === l.id ? 'on' : ''}" data-ui="setLang" data-arg="${l.id}">${l.label}</button>`).join('')}</div>
     <p class="small muted keyshelp">${esc(L('← → andar · ↑ ↓ escadas · Shift correr · E / Espaço interagir · J pular · H computador de bordo · R relatório · T tripulação · Esc menu'))}</p>

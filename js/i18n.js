@@ -56,30 +56,42 @@ const I18n = {
     const t = this.lang === 'pt' ? 'Pontes01 — Exploração Espacial' : (I18N_DICT[this.lang]['title'] || document.title);
     document.title = t;
   },
+  // textos em português que apareceram sem tradução (para auditoria: I18n.misses)
+  misses: new Set(),
+  PT_RE: /[ãõçâêôáéíóúà]|\b(não|você|para|com|uma|dos|das|nave|está|são|sem|mais|seu|sua|pelo|pela|até|que|da|os|ao|em|na|pule|pegar|de|levou)\b/i,
+  noteMiss(k) { if (k && k.length > 1 && this.misses.size < 3000 && /\p{L}/u.test(k) && this.PT_RE.test(k)) this.misses.add(k); },
   // texto isolado
   _c: { en: new Map(), es: new Map() },
   t(s) {
     if (this.lang === 'pt' || s == null || s === '' || typeof s !== 'string') return s;
-    const cache = this._c[this.lang];
+    let out = this._t(s, this.lang);
+    // sem tradução em espanhol: mostra o inglês (nunca volta ao português)
+    const has = (l, x) => { const d = I18N_DICT[l] || {}; return d[x] != null || d[x.trim()] != null; };
+    if (out === s && this.lang !== 'en' && !has(this.lang, s)) out = this._t(s, 'en');
+    if (out === s && !has(this.lang, s)) this.noteMiss(s.trim());
+    return out;
+  },
+  _t(s, lang) {
+    const cache = this._c[lang];
     const hit = cache.get(s); if (hit !== undefined) return hit;
-    const d = I18N_DICT[this.lang]; let out = s;
+    const d = I18N_DICT[lang]; let out = s;
     const k = s.trim();
-    if (k.startsWith('Narração: ') && d['Narração:']) out = s.replace(k, d['Narração:'] + ' ' + this.t(k.slice(10)));
+    if (k.startsWith('Narração: ') && d['Narração:']) out = s.replace(k, d['Narração:'] + ' ' + this._t(k.slice(10), lang));
     else if (d[s] != null) out = d[s];
     else if (k && d[k] != null) out = s.replace(k, d[k]);
     else {
       let done = false;
-      for (const [re, rep] of I18N_PATTERNS[this.lang]) { if (re.test(k)) { out = s.replace(k, k.replace(re, rep)); done = true; break; } }
+      for (const [re, rep] of I18N_PATTERNS[lang]) { if (re.test(k)) { out = s.replace(k, k.replace(re, rep)); done = true; break; } }
       if (!done) {
         let m;
         // fala de tripulante: "Engenheiro 1 João: “...”", "Navegador Ana ★"
         if ((m = /^(Paramédic[oa]|Navegador[a]?|Agricultor[a]? \/ Eng\. Gen[ée]tic[oa]|Engenheir[oa] \d|Pesquisador[a]? Chefe|Comandante)( .*)$/.exec(k))) {
           const rest = m[2]; const sp = /^ (.+?): “(.+)”$/.exec(rest);
-          out = s.replace(k, this.t(m[1]) + (sp ? ' ' + sp[1] + ': “' + this.t(sp[2]) + '”' : rest.replace(/^ Comandante$/, ' ' + this.t('Comandante'))));
+          out = s.replace(k, this._t(m[1], lang) + (sp ? ' ' + sp[1] + ': “' + this._t(sp[2], lang) + '”' : rest.replace(/^ Comandante$/, ' ' + this._t('Comandante', lang))));
         }
         // símbolos no início ("▶ ", "— ", "✔ ") e sufixo " — Comandante"
-        else if ((m = /^([^\p{L}\p{N}"“(]+)(.+)$/u.exec(k)) && this.t(m[2]) !== m[2]) out = s.replace(k, m[1] + this.t(m[2]));
-        else if ((m = /^(.+?)( — )([^—]+)$/.exec(k)) && (this.t(m[1]) !== m[1] || this.t(m[3]) !== m[3])) out = s.replace(k, this.t(m[1]) + m[2] + this.t(m[3]));
+        else if ((m = /^([^\p{L}\p{N}"“(+−-]+)(.+)$/u.exec(k)) && this._t(m[2], lang) !== m[2]) out = s.replace(k, m[1] + this._t(m[2], lang));
+        else if ((m = /^(.+?)( — )([^—]+)$/.exec(k)) && (this._t(m[1], lang) !== m[1] || this._t(m[3], lang) !== m[3])) out = s.replace(k, this._t(m[1], lang) + m[2] + this._t(m[3], lang));
       }
     }
     if (cache.size > 4000) cache.clear();
@@ -107,7 +119,9 @@ const I18n = {
 // texto novo nos 3 idiomas
 const K = (pt, en, es) => ({ pt, en, es });
 // atalhos globais
-const L = o => (o == null ? '' : typeof o === 'string' ? I18n.t(o) : (o[I18n.lang] != null ? o[I18n.lang] : (o.pt != null ? o.pt : '')));
+// objeto K(pt, en, es): idioma atual → inglês → português (o inglês tem prioridade sobre o português)
+// os arquivos data/lang/<idioma>.json têm prioridade; o texto embutido no código é só reserva
+const L = o => { if (o == null) return ''; if (typeof o === 'string') return I18n.t(o); if (I18n.lang !== 'pt' && o.pt != null) { const d = I18N_DICT[I18n.lang] || {}; if (d[o.pt] != null) return d[o.pt]; } if (o[I18n.lang] != null) return o[I18n.lang]; if (I18n.lang !== 'pt' && o.en != null) return o.en; if (o.pt != null) { if (I18n.lang !== 'pt') { const t = I18n.t(o.pt); if (t !== o.pt) return t; } return o.pt; } return ''; };
 const T = s => I18n.t(s);
 
 // ---------- traduções em JSON: data/lang/<idioma>.json ----------

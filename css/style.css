@@ -39,7 +39,7 @@ code, pre { font-family: var(--vt); }
 
 .start { position: absolute; inset: 0; z-index: 30; border: 0; background: radial-gradient(ellipse at center, rgba(19, 25, 74, 0.85), rgba(5, 6, 26, 0.97)); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.2em; cursor: pointer; font-family: var(--pix); font-size: clamp(12px, 1.6cqw, 20px); }
 .start.hide { display: none; }
-.start .logo-s { font-size: 3em; letter-spacing: 2px; text-shadow: 0 0 20px rgba(60, 210, 255, 0.5); }
+.start .logo-s { font-size: 3em; letter-spacing: 2px; text-shadow: 3px 3px 0 #1a2766, -1px -1px 0 #05061a; }
 .start small { font-family: var(--vt); color: var(--muted); font-size: 1.1em; }
 .blink { animation: blink 1s steps(2) infinite; }
 @keyframes blink { 50% { opacity: 0.25; } }
@@ -118,7 +118,7 @@ select { background: #070b24; color: #fff; border: 1px solid #2f5bd7; font-famil
 .tbox .lbl { color: #fff; } .tbox .sep { border-top: 1px solid #2f5bd7; margin: 0.3em 0; }
 .tbox p { margin: 0; }
 .logo { position: absolute; left: 50%; top: 27%; transform: translateX(-50%); text-align: center; }
-.logo h1 { font-family: var(--pix); font-size: 3.4em; margin: 0; color: #f0f4ff; letter-spacing: 3px; text-shadow: 0 4px 0 #1a2766, 0 0 24px rgba(60, 210, 255, 0.45); font-style: italic; }
+.logo h1 { font-family: var(--pix); font-size: 3.4em; margin: 0; color: #f0f4ff; letter-spacing: 3px; text-shadow: 4px 4px 0 #1a2766, 8px 8px 0 #05061a; }
 .logo .sub { font-family: var(--sk); letter-spacing: 0.4em; color: #cfe0ff; margin-top: 0.4em; }
 .menu { position: absolute; left: 50%; top: 52%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 0.35em; width: 17em; }
 .panel .menu { position: static; transform: none; margin: 0.5em auto; }
@@ -702,9 +702,10 @@ img.pxe { width: 1.15em; height: 1.15em; image-rendering: pixelated; image-rende
 .homage{margin:10px auto;padding:6px 10px;border:1px solid rgba(70,224,138,.5);border-radius:6px;max-width:560px;font-size:.9em;color:#bff5d4}
 .qorigin{margin:6px 0;text-align:center}.qorigin .mchips{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin:4px 0}
 /* fotos dos planetas */
-.ppic { image-rendering: auto; display: block; border-radius: 6px; background: #000; }
+.ppic { image-rendering: pixelated; image-rendering: crisp-edges; display: block; border-radius: 0; background: #000; }
 .exo .ppic.thumb { width: 72px; height: 72px; float: left; margin: 0 8px 4px 0; border: 2px solid #22357a; }
 .exo::after { content: ''; display: block; clear: both; }
 .phero { display: flex; gap: 12px; align-items: center; margin: 6px 0; }
 .phero .ppic.hero { width: 150px; height: 150px; flex: none; border: 2px solid #22357a; box-shadow: 0 0 18px rgba(80, 140, 255, .25); }
 .exo .kv { clear: both; padding-top: 4px; } .exo > b { font-size: 1.15em; }
+.phero .ppic.hero, .exo .ppic.thumb { border-radius: 0; }

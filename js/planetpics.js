@@ -86,10 +86,12 @@ function planetPic(id, size) {
       const t = 1 - (Math.sqrt(d2) - 1) / 0.077; const a = Math.max(0, t) ** 2 * Math.max(0.1, ((dx * Lx + dy * Ly) / Math.sqrt(d2) + 0.3));
       r += atm[0] * a * 0.75; g += atm[1] * a * 0.75; b += atm[2] * a * 0.75;
     }
-    D[k] = Math.min(255, r); D[k + 1] = Math.min(255, g); D[k + 2] = Math.min(255, b); D[k + 3] = 255;
+    const q = v => Math.round(Math.min(255, v) / 24) * 24; // poucas cores, cara de pixel art
+    D[k] = q(r); D[k + 1] = q(g); D[k + 2] = q(b); D[k + 3] = 255;
   }
   cx.putImageData(img, 0, 0);
   return (_ppCache[key] = cv.toDataURL());
 }
 // <img> pronta para os painéis
-function planetImg(id, size, cls) { return `<img class="ppic ${cls || ''}" src="${planetPic(id, size)}" alt="" draggable="false">`; }
+// pixel art: desenha em baixa resolução (≈ 1/3) e o CSS amplia sem suavizar
+function planetImg(id, size, cls) { return `<img class="ppic ${cls || ''}" src="${planetPic(id, Math.max(32, Math.round(size / 3)))}" alt="" draggable="false">`; }

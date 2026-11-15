@@ -169,7 +169,7 @@ const Chat = {
     const resLine = (k, label) => pre + L('Temos ') + fmt(r[k], 0) + ' ' + label + '.';
     switch (intent) {
       case 'status': return pre + this.statusLine();
-      case 'o2': return resLine('oxigenio', 'kg de O₂');
+      case 'o2': return resLine('oxigenio', L('kg de O₂'));
       case 'agua': return resLine('agua', L('litros de água'));
       case 'comida': return resLine('comida', L('kg de comida'));
       case 'energia': return resLine('energia', 'kWh');

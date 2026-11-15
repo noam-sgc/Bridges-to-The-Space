@@ -24,7 +24,8 @@ function startEvent(type) {
 const NO_TRIM = { traje: 1, brecha: 1, lixo: 1, tempestade: 1, termico: 1 };
 function trimSteps(ev) {
   const short = S.journey === 'curta';
-  if (short && ev.type === 'termico' && S.thermal) { S.thermal.D = 40; ev.t = ev.dur = 40; }
+  if (short && ev.type === 'termico' && S.thermal) { S.thermal.D = 15; ev.t = ev.dur = 15; }
+  else if (short) { ev.t = ev.dur = Math.max(20, Math.round((ev.dur || 60) * 0.5)); } // partida rápida: metade do tempo
   if (!ev.steps || !ev.steps.length) return;
   if (!NO_TRIM[ev.type]) {
     const pi = ev.steps.findIndex(s => s.puzzle);
@@ -190,7 +191,7 @@ function makePuzzle(kind, ev, step) {
   if (kind === 'remedio') return { kind, seen: {}, expiredWarned: false };
   if (kind === 'substituto') return { kind };
   if (kind === 'rota') return { kind };
-  if (kind === 'pilot') return { kind, y: 0.5, rocks: [], t: 16, hits: 0, spawn: 0 };
+  if (kind === 'pilot') return { kind, y: 0.5, rocks: [], t: S.journey === 'curta' ? 8 : 16, hits: 0, spawn: 0 };
   return { kind };
 }
 function puzzleDone(ev) {
@@ -623,6 +624,7 @@ function thMsg(t) { const th = S.thermal; if (!th) return; th.msgs.push(t); if (
 function thermalTick(ev, dt) {
   const th = S.thermal; if (!th) return;
   th.el += dt; ev.t = Math.max(0, th.D - th.el);
+  const kk = Math.min(4, 60 / th.D); // fase curta: tudo acontece mais rápido
   const p = th.el / th.D;
   const peak = has('pintura') ? 100 : 120;
   if (th.scene < 2 && p >= 0.12) { th.scene = 2; thMsg('A estrela se aproxima: o lado do Sol sobe para +' + peak + ' °C. Ligue o resfriador.'); sayRole('engenheiro1', F('crew.c10'), 8); }
@@ -631,8 +633,8 @@ function thermalTick(ev, dt) {
   // temperaturas externas
   const sunT = th.shadow ? -60 : (th.scene >= 2 ? peak : 50);
   const shadeT = th.shadow ? -150 : (th.scene >= 2 ? -120 : -100);
-  th.sun += (sunT - th.sun) * Math.min(1, dt * 0.4);
-  th.shade += (shadeT - th.shade) * Math.min(1, dt * 0.4);
+  th.sun += (sunT - th.sun) * Math.min(1, dt * 0.4 * kk);
+  th.shade += (shadeT - th.shade) * Math.min(1, dt * 0.4 * kk);
   // gasto de energia dos aparelhos ligados (desligam sozinhos sem energia)
   for (const k of ['heat', 'cool']) {
     if (!th.on[k]) continue;
@@ -649,7 +651,7 @@ function thermalTick(ev, dt) {
   th.want = { cool: th.base > 26, heat: th.base < 18 };
   const Teq = th.base - (th.on.cool ? 8 : 0) + (th.on.heat ? 9 : 0);
   th.Teq = Teq;
-  th.T += (Teq - th.T) * Math.min(1, dt * 0.25);
+  th.T += (Teq - th.T) * Math.min(1, dt * 0.25 * kk);
   // plantação e tripulação sofrem fora da faixa
   if (th.T > 26 || th.T < 18) {
     th.outT += dt; th.plantT += dt * 5;

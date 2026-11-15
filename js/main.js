@@ -168,6 +168,8 @@ function frame(now) {
 const shiftOn = () => keys.ShiftLeft || keys.ShiftRight;
 // Esc: fecha o que estiver aberto, desmarca seleções e volta
 function escAll() {
+  if (U.qset) { U.qset = false; return true; }
+  if (U.qmenu) { U.qmenu = false; return true; }
   if (U.settingsOpen) { U.settingsOpen = false; return true; }
   if (U.voicePick) { U.voicePick = false; return true; }
   if (S && U.screen === 'game' && S.scene === 'colony' && me() && me().csleep) { act('cWake'); return true; } // dormindo: Esc acorda
@@ -212,7 +214,7 @@ window.addEventListener('keydown', e => {
   const inGame = S && U.screen === 'game';
   if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code) && (inGame || U.screen === 'story')) e.preventDefault();
   if (inGame && ['Space', 'Enter', 'KeyE'].includes(e.code) && e.target && e.target.tagName === 'BUTTON') { e.preventDefault(); e.target.blur(); }
-  if (e.code === 'Escape') { escAll() || (inGame && ['ship', 'colony'].includes(S.scene) && UIH.panel('menu')); return; }
+  if (e.code === 'Escape') { escAll() || (inGame && ['ship', 'colony'].includes(S.scene) && (U.qmenu = true)); return; }
   if (U.screen === 'story') { if (['Space', 'Enter', 'ArrowRight'].includes(e.code)) UIH.storyNext(); return; }
   if (!inGame) return;
   if (e.repeat && e.code === 'Space') return;

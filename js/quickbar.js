@@ -48,15 +48,18 @@ function quickBar() {
 }
 UIH.qAudio = () => { const st = Save.data.settings; st.mute = !st.mute; Save.write(); if (st.mute) Narrator.stop(); Music.refreshVolume(); };
 UIH.qSfx = () => { const st = Save.data.settings; st.sfxOff = !st.sfxOff; Save.write(); };
-UIH.qSettings = () => { if (S && U.screen === 'game') U.qset = !U.qset; else U.screen = 'settings'; };
+UIH.qSettings = () => { if (S && U.screen === 'game') { U.qmenu = !(U.qmenu || U.qset); U.qset = false; U.confirmQuit = false; } else U.screen = 'settings'; };
+UIH.qSettingsOpen = () => { U.qmenu = false; U.qset = true; if (U.panel === 'menu') U.panel = null; };
 (function () {
-  const _close = UIH.closePanel; UIH.closePanel = function () { if (U.qset) { U.qset = false; return; } _close(); };
+  const _close = UIH.closePanel; UIH.closePanel = function () { if (U.qset) { U.qset = false; return; } if (U.qmenu) { U.qmenu = false; return; } _close(); };
   const _render = renderUI;
   renderUI = function () {
     Phases.tick();
     if (typeof guideAutoPontes === 'function') guideAutoPontes();
+    const g = S && U.screen === 'game';
+    U.modalOverride = g && U.qset ? `<div class="modal-bg">${settingsScreen(true)}</div>` : g && U.qmenu ? menuPanel() : null;
     _render();
     setHTML('qbar', quickBar());
-    if (U.qset && S && U.screen === 'game') setHTML('modal', `<div class="modal-bg">${settingsScreen(true)}</div>`);
+    if (U.modalOverride) setHTML('modal', U.modalOverride);
   };
 })();
