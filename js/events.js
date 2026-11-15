@@ -852,7 +852,7 @@ ACTIONS.land = () => {
   if (S.res.combustivel < need) {
     damageSys('casco', 25); moral(-5);
     const v = pick(alive().filter(c => c.id !== 'cmd')); if (v) v.status = 'ferido';
-    toast('Pouso de emergência: combustível curto (' + Math.round(S.res.combustivel) + ' de ' + need + ' kg). O casco sofreu e alguém se feriu.', 'bad');
+    { const q = Math.round(S.res.combustivel); toast(K('Pouso de emergência: combustível curto (' + q + ' de ' + need + ' kg). O casco sofreu e alguém se feriu.', 'Emergency landing: short on propellant (' + q + ' of ' + need + ' kg). The hull suffered and someone was hurt.', 'Aterrizaje de emergencia: combustible escaso (' + q + ' de ' + need + ' kg). El casco sufrió y alguien se hizo daño.'), 'bad'); }
   }
   // local pouco investigado ou hostil: a colônia começa mais difícil, mas começa
   if (score < 3) {

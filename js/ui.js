@@ -164,7 +164,7 @@ function shopScreen() {
     <p class="muted">${L(K(`Cada fase vencida dá pontos. Itens de lazer aumentam a <b>moral</b>; itens de produtividade aumentam a <b>eficiência</b> da tripulação. Bônus atuais: moral +${b.moral}% · eficiência +${b.eff}%.`, `Every phase you clear gives points. Leisure items raise crew <b>morale</b>; productivity items raise crew <b>efficiency</b>. Current bonuses: morale +${b.moral}% · efficiency +${b.eff}%.`, `Cada fase superada da puntos. Los artículos de ocio aumentan la <b>moral</b>; los de productividad aumentan la <b>eficiencia</b> de la tripulación. Bonos actuales: moral +${b.moral}% · eficiencia +${b.eff}%.`))}</p>
     ${cats.map(([c, n]) => `<h3>${n}</h3><div class="shopgrid">${SHOP.filter(i => i.cat === c).map(i => {
       const owned = Save.owns(i.id);
-      return `<div class="shopitem ${owned ? 'owned' : ''}"><b>${esc(i.name)}</b><span>${esc(i.desc)}</span>${owned ? '<em>✔ adquirido</em>' : `<button class="btn small" data-ui="buy" data-arg="${i.id}" ${Save.data.credits < i.price ? 'disabled' : ''}>✦ ${i.price}</button>`}</div>`;
+      return `<div class="shopitem ${owned ? 'owned' : ''}"><b>${esc(i.name)}</b><span>${esc(i.desc)}</span>${owned ? `<em>✔ ${esc(L(K('adquirido', 'purchased', 'adquirido')))}</em>` : `<button class="btn small" data-ui="buy" data-arg="${i.id}" ${Save.data.credits < i.price ? 'disabled' : ''}>✦ ${i.price}</button>`}</div>`;
     }).join('')}</div>`).join('')}
     <div class="row"><button class="btn" data-ui="title">◀ Voltar</button></div>
   </div>`;
