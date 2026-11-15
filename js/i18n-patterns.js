@@ -13,7 +13,7 @@ function registerFnPatterns() {
   const low = s => s.charAt(0).toLowerCase() + s.slice(1);
   const P = (re, en, es) => { I18N_PATTERNS.en.push([re, en]); I18N_PATTERNS.es.push([re, es]); };
   const sev = { en: { leve: 'minor', média: 'moderate', grave: 'severe' }, es: { leve: 'leve', média: 'media', grave: 'grave' } };
-  P(/^(Arca-\d) · (.+)$/, (m, a, b) => a + ' · ' + t(b), (m, a, b) => a + ' · ' + t(b));
+  P(/^Nave-(\d) · (.+)$/, (m, a, b) => 'Spaceship ' + a + ' · ' + t(b), (m, a, b) => 'Nave-' + a + ' · ' + t(b));
   P(/^Colono · (.+)$/, 'Colonist · $1', 'Colono · $1');
 
   P(/^(.+\.) Um dos impactos furou o casco!$/, (m, a) => `${t(a)} One of the impacts holed the hull!`, (m, a) => `${t(a)} ¡Uno de los impactos perforó el casco!`);

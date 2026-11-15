@@ -156,9 +156,17 @@ function draw(dt) {
   }
 }
 
+// a interface é reconstruída no máximo ~10 vezes por segundo (ou logo após um clique/tecla),
+// para não pesar em computadores mais lentos; o desenho do jogo continua a cada quadro
+let lastUI = 0;
+document.addEventListener('pointerdown', () => { U.uiDirty = true; }, true);
 function frame(now) {
   const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now;
-  try { update(dt); draw(dt); renderUI(); if (U.screen === 'avatar') drawAvatarPreviews(); }
+  try {
+    update(dt); draw(dt);
+    if (U.uiDirty || now - lastUI >= 100) { U.uiDirty = false; lastUI = now; renderUI(); }
+    if (U.screen === 'avatar') drawAvatarPreviews();
+  }
   catch (e) { console.error(e); }
   Music.play(musicFor());
   requestAnimationFrame(frame);
@@ -215,6 +223,7 @@ function spaceAction() {
   }
 }
 window.addEventListener('keydown', e => {
+  U.uiDirty = true;
   if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA')) return;
   Music.unlock(); Sfx.ensure();
   keys[e.code] = true;

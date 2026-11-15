@@ -39,8 +39,11 @@ function dropFocus() { const a = document.activeElement; if (a && a !== document
 function setHTML(id, html) {
   if (id === 'modal' && U.modalOverride) html = U.modalOverride; // menu/config da barra rápida por cima de tudo
   if (U.cache[id] === html) return;
-  U.cache[id] = html;
   const el = document.getElementById(id);
+  // não redesenha enquanto o jogador arrasta um controle deslizante ou escolhe numa lista (senão o controle "escapa" do mouse)
+  const ae = document.activeElement;
+  if (el && ae && el.contains(ae) && ((U.dragging && ae.type === 'range') || ae.tagName === 'SELECT')) return;
+  U.cache[id] = html;
   if (el) {
     // guarda a rolagem dos painéis: o conteúdo é trocado a cada atualização e o scroll voltaria ao topo
     const SCR = '.panel, .scroll, .evp, .stage-panel, .modal-bg, .side, .report-list, .evlog';
@@ -145,7 +148,7 @@ function settingsScreen(inGame) {
     <div class="row"><button class="btn ${st.mute ? '' : 'on'}" data-ui="qAudio">${st.mute ? '🔇' : '🔊'} ${esc(L(K('Áudio (música e voz)', 'Audio (music and voice)', 'Audio (música y voz)')))}: <b>${esc(L(st.mute ? 'DESLIGADO' : 'LIGADO'))}</b></button><button class="btn ${st.sfxOff ? '' : 'on'}" data-ui="qSfx">${st.sfxOff ? '🔕' : '🔔'} ${esc(L(K('Efeitos sonoros', 'Sound effects', 'Efectos de sonido')))}: <b>${esc(L(st.sfxOff ? 'DESLIGADO' : 'LIGADO'))}</b></button></div>
     <label class="field">Música <input type="range" min="0" max="1" step="0.05" value="${st.music}" data-set="music"></label>
     <label class="field">Efeitos <input type="range" min="0" max="1" step="0.05" value="${st.sfx}" data-set="sfx"></label>
-    <label class="check"><input type="checkbox" data-set="narration" ${st.narration ? 'checked' : ''}> Narração por voz (pt-BR)</label>
+    <label class="check"><input type="checkbox" data-set="narration" ${st.narration ? 'checked' : ''}> Narração por voz</label>
     <label class="field">${esc(L('Voz'))} <select data-set="voice"><option value="">${esc(L('Automática (a mais natural)'))}</option>${Narrator.voices().map(v => `<option value="${esc(v.name)}" ${(st.voices || {})[I18n.lang] === v.name ? 'selected' : ''}>${esc(v.name)}</option>`).join('')}</select> <button class="btn small" data-ui="voiceTest">🔊</button></label>
     <label class="field">${esc(L('Velocidade da voz'))} <input type="range" min="0.7" max="1.3" step="0.05" value="${st.voiceRate || 1}" data-set="voiceRate"></label>
     <label class="check"><input type="checkbox" data-set="curios" ${st.curios !== false ? 'checked' : ''}> ${esc(L('Curiosidades do computador de bordo (texto e voz)'))}</label>
@@ -222,19 +225,20 @@ function drawAvatarPreviews() {
 }
 
 // ---------- lobby multiplayer ----------
-const arcaHint = n => K('Arca-' + n + ': quem entra primeiro nessa nave vira o Comandante dela; os próximos entram na tripulação. Cada Arca faz a sua própria jornada (até 28 pessoas no total).', 'Arca-' + n + ': whoever enters this ship first becomes its Commander; the next ones join the crew. Each Arca makes its own journey (up to 28 people in total).', 'Arca-' + n + ': quien entra primero en esta nave se vuelve su Comandante; los siguientes se unen a la tripulación. Cada Arca hace su propio viaje (hasta 28 personas en total).');
-const arcaJoinLabel = n => K('Entrar na Arca-' + n, 'Join Arca-' + n, 'Entrar en la Arca-' + n);
+const arcaHint = n => K('Nave-' + n + ': quem entra primeiro nessa nave vira o Comandante dela; os próximos entram na tripulação. Cada Nave faz a sua própria jornada (até 28 pessoas no total).', 'Spaceship ' + n + ': whoever enters this ship first becomes its Commander; the next ones join the crew. Each Spaceship makes its own journey (up to 28 people in total).', 'Nave-' + n + ': quien entra primero en esta nave se vuelve su Comandante; los siguientes se unen a la tripulación. Cada Nave hace su propio viaje (hasta 28 personas en total).');
+const shipLabel = n => L(K('Nave-' + n, 'Spaceship ' + n, 'Nave-' + n));
+const arcaJoinLabel = n => K('Entrar na Nave-' + n, 'Join Spaceship ' + n, 'Entrar en la Nave-' + n);
 const roleChips = LB => `<div class="grp"><b>${esc(L(K('Sua função', 'Your role', 'Su función')))}</b><button class="chip ${!LB.role ? 'on' : ''}" data-ui="netRole" data-arg="">${esc(L(K('Qualquer', 'Any', 'Cualquiera')))}</button>${ROLES.map(r => `<button class="chip ${LB.role === r.id ? 'on' : ''}" data-ui="netRole" data-arg="${r.id}">${esc(L(r.short))}</button>`).join('')}</div>`;
-const shipChips = LB => `<div class="grp"><b>${esc(L(K('Escolha sua Arca', 'Choose your Arca', 'Elija su Arca')))}</b>${[1, 2, 3, 4].map(n => `<button class="chip ${(LB.ship || 1) === n ? 'on' : ''}" data-ui="netShip" data-arg="${n}">Arca-${n}</button>`).join('')}</div><p class="small muted">${esc(L(arcaHint(LB.ship || 1)))}</p>`;
+const shipChips = LB => `<div class="grp"><b>${esc(L(K('Escolha sua Nave', 'Choose your Spaceship', 'Elija su Nave')))}</b>${[1, 2, 3, 4].map(n => `<button class="chip ${(LB.ship || 1) === n ? 'on' : ''}" data-ui="netShip" data-arg="${n}">${esc(shipLabel(n))}</button>`).join('')}</div><p class="small muted">${esc(L(arcaHint(LB.ship || 1)))}</p>`;
 function lobbyScreen() {
   const LB = U.lobby || {};
   if (Net.role === 'host' && Net.room) {
     return `<div class="panel center wide">
-      <h2>SALA <span class="code">${esc(Net.room)}</span> · Arca-${Net.mySh || 1}</h2>
-      <p class="small yellow">${esc(L(K('Você é o Comandante da Arca-' + (Net.mySh || 1) + '.', 'You are the Commander of Arca-' + (Net.mySh || 1) + '.', 'Usted es el Comandante de la Arca-' + (Net.mySh || 1) + '.')))}</p>
+      <h2>SALA <span class="code">${esc(Net.room)}</span> · ${esc(shipLabel(Net.mySh || 1))}</h2>
+      <p class="small yellow">${esc(L(K('Você é o Comandante da Nave-' + (Net.mySh || 1) + '.', 'You are the Commander of Spaceship ' + (Net.mySh || 1) + '.', 'Usted es el Comandante de la Nave-' + (Net.mySh || 1) + '.')))}</p>
       <p class="muted">Passe o código para até 6 amigos. Cada um assume um tripulante; os lugares vazios ficam com bots.</p>
-      ${!Net.relay ? `<p class="small cyan">${esc(L(K('Outras Arcas: quem entrar com este código escolhendo outra Arca vira o Comandante dela (jornada própria). Até 28 pessoas: 4 Arcas × (Comandante + 6).', 'Other Arcas: whoever joins with this code and picks another Arca becomes its Commander (own journey). Up to 28 people: 4 Arcas × (Commander + 6).', 'Otras Arcas: quien entre con este código eligiendo otra Arca se vuelve su Comandante (viaje propio). Hasta 28 personas: 4 Arcas × (Comandante + 6).')))}</p>
-      ${[1, 2, 3, 4].filter(n => n !== Net.hubShip).map(n => { const a = Net.arcas[n]; return `<div class="alert ${a ? 'good' : 'info'}"><b>Arca-${n}</b> — ${a ? '🎮 ' + esc(a.cmdName || '') + ' · ' + a.members.length + '/6 ' + esc(L(K('tripulantes', 'crew', 'tripulantes'))) : esc(L(K('livre (o 1º que entrar vira Comandante)', 'free (the first to join becomes Commander)', 'libre (el primero en entrar será Comandante)')))}</div>`; }).join('')}` : ''}
+      ${!Net.relay ? `<p class="small cyan">${esc(L(K('Outras Naves: quem entrar com este código escolhendo outra Nave vira o Comandante dela (jornada própria). Até 28 pessoas: 4 Naves × (Comandante + 6).', 'Other Spaceships: whoever joins with this code and picks another Spaceship becomes its Commander (own journey). Up to 28 people: 4 Spaceships × (Commander + 6).', 'Otras Naves: quien entre con este código eligiendo otra Nave se vuelve su Comandante (viaje propio). Hasta 28 personas: 4 Naves × (Comandante + 6).')))}</p>
+      ${[1, 2, 3, 4].filter(n => n !== Net.hubShip).map(n => { const a = Net.arcas[n]; return `<div class="alert ${a ? 'good' : 'info'}"><b>${esc(shipLabel(n))}</b> — ${a ? '🎮 ' + esc(a.cmdName || '') + ' · ' + a.members.length + '/6 ' + esc(L(K('tripulantes', 'crew', 'tripulantes'))) : esc(L(K('livre (o 1º que entrar vira Comandante)', 'free (the first to join becomes Commander)', 'libre (el primero en entrar será Comandante)')))}</div>`; }).join('')}` : ''}
       <p class="small cyan">${Net.mode === 'p2p' ? '🌐 Sala online (P2P): funciona pela internet, sem servidor e sem VPN. Mantenha esta aba aberta.' : '🖧 Servidor próprio'}</p>
       <div class="seats">${ROLES.map(r => { const p = Object.values(Net.players).find(x => x.role === r.id); return `<div class="seat ${p ? 'human' : ''}"><b>${r.name}</b><span>${p ? '🎮 ' + esc(p.name) : '🤖 Bot'}</span></div>`; }).join('')}</div>
       <div class="cards two">
@@ -245,14 +249,14 @@ function lobbyScreen() {
     </div>`;
   }
   if (Net.role === 'client') {
-    return `<div class="panel center"><h2>CONECTADO</h2><p>Sala <span class="code">${esc(Net.room || '')}</span>. Arca-${Net.mySh || 1}${Net.cmdName ? ' · ' + esc(L(K('Comandante: ', 'Commander: ', 'Comandante: '))) + esc(Net.cmdName) : ''}. Você será: <b>${esc(L(Net.myRoleName || '...'))}</b>.</p><p class="muted">Aguardando o Comandante iniciar a jornada e montar a nave...</p>${ROLE_DUTIES[U.me] ? `<p class="small cyan">${esc(L('Sua função:'))} ${esc(L(ROLE_DUTIES[U.me]))}</p><p class="small muted">${esc(L('Quando chamarem a sua função, aparece um aviso 📢: vá até a estação e pressione E. Se não for em 45 s, um bot assume.'))}</p>` : ''}<div class="row"><button class="btn" data-ui="netLeave">◀ Sair</button></div></div>`;
+    return `<div class="panel center"><h2>CONECTADO</h2><p>Sala <span class="code">${esc(Net.room || '')}</span>. ${esc(shipLabel(Net.mySh || 1))}${Net.cmdName ? ' · ' + esc(L(K('Comandante: ', 'Commander: ', 'Comandante: '))) + esc(Net.cmdName) : ''}. Você será: <b>${esc(L(Net.myRoleName || '...'))}</b>.</p><p class="muted">Aguardando o Comandante iniciar a jornada e montar a nave...</p>${ROLE_DUTIES[U.me] ? `<p class="small cyan">${esc(L('Sua função:'))} ${esc(L(ROLE_DUTIES[U.me]))}</p><p class="small muted">${esc(L('Quando chamarem a sua função, aparece um aviso 📢: vá até a estação e pressione E. Se não for em 45 s, um bot assume.'))}</p>` : ''}<div class="row"><button class="btn" data-ui="netLeave">◀ Sair</button></div></div>`;
   }
   return `<div class="panel center">
     <h2>MULTIPLAYER</h2>
-    <p class="muted">${esc(L(K('Até 28 jogadores: 4 Arcas, cada uma com um Comandante e 6 tripulantes. Quem cria a sala é o Comandante da Arca que escolher.', 'Up to 28 players: 4 Arcas, each with a Commander and 6 crew. Whoever creates the room is the Commander of the Arca they choose.', 'Hasta 28 jugadores: 4 Arcas, cada una con un Comandante y 6 tripulantes. Quien crea la sala es el Comandante de la Arca que elija.')))} ${esc(L('Funciona online direto pelo navegador: não precisa de servidor nem de VPN.'))}</p>
+    <p class="muted">${esc(L(K('Até 28 jogadores: 4 Naves, cada uma com um Comandante e 6 tripulantes. Quem cria a sala é o Comandante da Nave que escolher.', 'Up to 28 players: 4 Spaceships, each with a Commander and 6 crew. Whoever creates the room is the Commander of the Spaceship they choose.', 'Hasta 28 jugadores: 4 Naves, cada una con un Comandante y 6 tripulantes. Quien crea la sala es el Comandante de la Nave que elija.')))} ${esc(L('Funciona online direto pelo navegador: não precisa de servidor nem de VPN.'))}</p>
     ${shipChips(LB)}
     ${roleChips(LB)}
-    <div class="row"><button class="btn primary" data-ui="netHost" ${LB.busy ? 'disabled' : ''}>${esc(L(K('Criar sala (Comandante da Arca-' + (LB.ship || 1) + ')', 'Create room (Commander of Arca-' + (LB.ship || 1) + ')', 'Crear sala (Comandante de la Arca-' + (LB.ship || 1) + ')')))}</button></div>
+    <div class="row"><button class="btn primary" data-ui="netHost" ${LB.busy ? 'disabled' : ''}>${esc(L(K('Criar sala (Comandante da Nave-' + (LB.ship || 1) + ')', 'Create room (Commander of Spaceship ' + (LB.ship || 1) + ')', 'Crear sala (Comandante de la Nave-' + (LB.ship || 1) + ')')))}</button></div>
     <label class="field">Código da sala <input id="net-code" maxlength="5" value="${esc(LB.code || '')}" style="text-transform:uppercase" autocomplete="off"></label>
     <div class="row"><button class="btn" data-ui="netJoin" ${LB.busy ? 'disabled' : ''}>${esc(L(arcaJoinLabel(LB.ship || 1)))}</button></div>
     ${LB.busy ? `<p class="cyan">⏳ ${esc(LB.busy)}</p>` : ''}
@@ -599,7 +603,7 @@ function farmPanel() {
   if (!S.trays.length) return '<p>Sem estufa hidropônica nem kit de ervas. Não há bandejas de cultivo a bordo.</p>';
   const sel = U.farmSel == null ? 0 : U.farmSel;
   const t = S.trays[sel];
-  const grid = S.trays.map((tr, i) => `<button class="tray ${i === sel ? 'sel' : ''} ${tr.state}" data-ui="farmSel" data-arg="${i}">${tr.crop ? `<b style="color:${CROPS[tr.crop].color}">${CROPS[tr.crop].name.split(' ')[0]}</b><span>${tr.state === 'pronto' ? 'COLHER ' + Math.ceil(tr.readyT) + 's' : tr.state === 'estragado' ? 'estragou' : Math.floor(tr.g * 100) + '%'}</span>` : '<span>vazia</span>'}</button>`).join('');
+  const grid = S.trays.map((tr, i) => `<button class="tray ${i === sel ? 'sel' : ''} ${tr.state}" data-ui="farmSel" data-arg="${i}">${tr.crop ? `<b style="color:${CROPS[tr.crop].color}">${CROPS[tr.crop].name.split(' ')[0]}</b><span>${tr.state === 'pronto' ? esc(L(K('COLHER', 'HARVEST', 'COSECHAR'))) + ' ' + Math.ceil(tr.readyT) + 's' : tr.state === 'estragado' ? esc(L(K('estragou', 'spoiled', 'estropeado'))) : Math.floor(tr.g * 100) + '%'}</span>` : '<span>vazia</span>'}</button>`).join('');
   let detail = '';
   if (!t.crop) detail = `<h4>Plantar na bandeja ${sel + 1}</h4><div class="opts">${Object.entries(CROPS).map(([k, c]) => `<button class="opt" data-act="plant" data-p='${J({ i: sel, crop: k })}'><b>${c.name}</b><span>${c.days} dias · ${c.yield} kg · ${c.water} L${c.needs ? ' · requer biorreator' : ''}</span></button>`).join('')}</div>`;
   else if (t.state === 'crescendo') detail = `<h4>${CROPS[t.crop].name} — ${Math.floor(t.g * 100)}%</h4>${['luz', 'agua', 'nutr'].map(w => `<div class="sysline"><span>${{ luz: 'Luz', agua: 'Água', nutr: 'Nutrientes' }[w]}</span>${bar(t[w], 100)}<button class="btn tiny" data-act="care" data-p='${J({ i: sel, what: w })}'>+</button></div>`).join('')}<div class="row"><button class="btn tiny" data-act="sacrificeTray" data-p='${J({ i: sel })}'>Sacrificar bandeja (economiza água)</button></div>`;
@@ -1032,6 +1036,11 @@ function bindUI() {
   layer.addEventListener('pointercancel', () => { tap = null; });
   layer.addEventListener('pointerup', e => { if (tap && e.pointerId === tap.id) { const s = tap.sig; tap = null; runSig(s); e.preventDefault(); dropFocus(); } });
   layer.addEventListener('click', e => { if (e.detail === 0) handle(e); });
+  // controles deslizantes: marca o arraste e solta o foco no fim, para o painel voltar a se atualizar
+  document.addEventListener('pointerdown', e => { if (e.target && e.target.type === 'range') U.dragging = true; }, true);
+  const endDrag = () => { if (U.dragging) { U.dragging = false; const a = document.activeElement; if (a && a.type === 'range') a.blur(); } };
+  document.addEventListener('pointerup', endDrag, true); document.addEventListener('pointercancel', endDrag, true);
+  layer.addEventListener('change', e => { const t = e.target; if (t && t.tagName === 'SELECT' && t.dataset.set) setTimeout(() => t.blur(), 0); });
   layer.addEventListener('input', e => {
     const t = e.target;
     if (t.id === 'av-name' && U.avatarDraft) U.avatarDraft.name = t.value;

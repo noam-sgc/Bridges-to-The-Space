@@ -29,7 +29,7 @@ function arcaArrive(pid, data) {
   Net.pendingArcas[r.ship] = { cmdPid: pid, data };
   if (S && S.scene === 'colony' && S.colony) return arcaMergeAll();
   Net.sendTo(pid, { t: 'arcaWait', hub: Net.hubShip });
-  Chat.sysAll(K(`🛬 A Arca-${r.ship} pousou em Pontes-01b! Ela se junta à colônia quando a Arca-${Net.hubShip} pousar.`, `🛬 Arca-${r.ship} landed on Pontes-01b! It joins the colony once Arca-${Net.hubShip} lands.`, `🛬 ¡La Arca-${r.ship} aterrizó en Pontes-01b! Se une a la colonia cuando aterrice la Arca-${Net.hubShip}.`), 'join');
+  Chat.sysAll(K(`🛬 A Nave-${r.ship} pousou em Pontes-01b! Ela se junta à colônia quando a Nave-${Net.hubShip} pousar.`, `🛬 Spaceship ${r.ship} landed on Pontes-01b! It joins the colony once Spaceship ${Net.hubShip} lands.`, `🛬 ¡La Nave-${r.ship} aterrizó en Pontes-01b! Se une a la colonia cuando aterrice la Nave-${Net.hubShip}.`), 'join');
 }
 function arcaMergeAll() { for (const ship of Object.keys(Net.pendingArcas)) arcaMerge(+ship, Net.pendingArcas[ship]); }
 function arcaMerge(ship, rec) {
@@ -41,7 +41,7 @@ function arcaMerge(ship, rec) {
     const owner = c.owner === 'SELF' ? rec.cmdPid : (c.owner && Net.roster[c.owner] ? c.owner : null);
     C.people.push({
       id, ship, seed: Math.floor(Math.random() * 1e9), name: String(c.name || 'Tripulante').slice(0, 14), avatar: c.avatar,
-      role: 'colono', roleName: 'Arca-' + ship + ' · ' + (c.roleName || ''), alive: true, status: 'ok', statusT: 0,
+      role: 'colono', roleName: 'Nave-' + ship + ' · ' + (c.roleName || ''), alive: true, status: 'ok', statusT: 0,
       humor: clamp(+c.humor || 70, 0, 100), saciedade: clamp(+c.saciedade || 70, 0, 100),
       x: px + (Math.random() * 80 - 40), deck: 'L', face: Math.random() < 0.5 ? 1 : -1, walkT: 0, moving: false,
       owner: owner || null, spawnT: i * 0.4, idleT: 1 + Math.random() * 3, jy: 0,
@@ -50,14 +50,14 @@ function arcaMerge(ship, rec) {
     if (owner) {
       Net.players[owner] = { name: c.name, role: id, avatar: c.avatar, pid: owner };
       const rr = Net.roster[owner]; if (rr) rr.merged = true;
-      Net.sendTo(owner, { t: 'welcome', merged: true, crew: id, roleName: 'Arca-' + ship + ' · ' + (c.roleName || ''), code: Net.room, ship });
+      Net.sendTo(owner, { t: 'welcome', merged: true, crew: id, roleName: 'Nave-' + ship + ' · ' + (c.roleName || ''), code: Net.room, ship });
     }
   });
   // o que sobrou nos porões da Arca vai para o estoque da colônia
   const res = rec.data.res || {};
-  for (const k of ['comida', 'agua', 'oxigenio', 'medicos']) { const v = +res[k] || 0; if (v > 0) addRes(k, v, 'Suprimentos das Arcas'); }
+  for (const k of ['comida', 'agua', 'oxigenio', 'medicos']) { const v = +res[k] || 0; if (v > 0) addRes(k, v, 'Suprimentos das Naves'); }
   delete Net.arcas[ship]; delete Net.pendingArcas[ship];
-  const msg = K(`🚀 A Arca-${ship} chegou à colônia: ${n} pessoas se juntaram a vocês em Pontes-01b!`, `🚀 Arca-${ship} reached the colony: ${n} people joined you on Pontes-01b!`, `🚀 ¡La Arca-${ship} llegó a la colonia: ${n} personas se unieron a ustedes en Pontes-01b!`);
+  const msg = K(`🚀 A Nave-${ship} chegou à colônia: ${n} pessoas se juntaram a vocês em Pontes-01b!`, `🚀 Spaceship ${ship} reached the colony: ${n} people joined you on Pontes-01b!`, `🚀 ¡La Nave-${ship} llegó a la colonia: ${n} personas se unieron a ustedes en Pontes-01b!`);
   Chat.sysAll(msg, 'join'); toast(msg, 'good');
   S.v++;
 }
@@ -72,7 +72,7 @@ function arcaMerge(ship, rec) {
   const _onMsg = Net.onMsg;
   Net.onMsg = function (m) {
     if (m && m.t === 'leave' && !this.relay) { const r = this.roster[m.pid]; if (r && r.merged) r.ship = this.hubShip; }
-    if (m && m.t === 'arcaWait') { toast(K(`Pouso concluído! Assim que a Arca-${m.hub} pousar, as duas tripulações vão se encontrar na mesma colônia.`, `Landing complete! As soon as Arca-${m.hub} lands, both crews will meet in the same colony.`, `¡Aterrizaje completo! En cuanto aterrice la Arca-${m.hub}, ambas tripulaciones se encontrarán en la misma colonia.`), 'good'); return; }
+    if (m && m.t === 'arcaWait') { toast(K(`Pouso concluído! Assim que a Nave-${m.hub} pousar, as duas tripulações vão se encontrar na mesma colônia.`, `Landing complete! As soon as Spaceship ${m.hub} lands, both crews will meet in the same colony.`, `¡Aterrizaje completo! En cuanto aterrice la Nave-${m.hub}, ambas tripulaciones se encontrarán en la misma colonia.`), 'good'); return; }
     if (m && m.t === 'welcome' && m.merged) { // virou morador da colônia do hub
       this.relay = false; this.players = {}; this.role = 'client'; this.arrivedSent = true;
       if (m.ship) this.mySh = m.ship;

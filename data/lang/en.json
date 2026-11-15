@@ -1880,12 +1880,12 @@
   "limpo": "clean",
   "Sequência": "Sequence",
   "Esse filtro estava bom. Tempo perdido!": "That filter was fine. Time lost!",
-  "Arca-1 · Controle da Colônia": "Arca-1 · Colony Control",
+  "Nave-1 · Controle da Colônia": "Spaceship 1 · Colony Control",
   "Colono": "Colonist",
   "Colonos": "Colonists",
   "Fonte": "Source",
   "Relatório do computador de bordo: dados reais": "Onboard computer report: real real data",
-  "Suprimentos das Arcas": "Supplies from the Arcas",
+  "Suprimentos das Naves": "Supplies from the Spaceships",
   "Funciona online direto pelo navegador: não precisa de servidor nem de VPN.": "Works online right in the browser: no server or VPN needed.",
   "Você sabia?": "Did you know?",
   "Responder": "Answer",
@@ -2094,7 +2094,7 @@
   "A estufa produz comida e ajuda no oxigênio.": "The greenhouse grows food and helps with oxygen.",
   "O filtro de ar reserva transforma uma pane do suporte à vida numa troca rápida.": "The spare air filter turns a life-support failure into a quick swap.",
   "📦 Caixinha de sugestões: +1 ponto de verba para a nave. ": "📦 Suggestion box: +1 budget point for the ship. ",
-  "Arcas e colonos": "Arcas and colonists",
+  "Naves e colonos": "Spaceships and colonists",
   "João": "Kaique",
   "Cinturão de radiação: a tripulação e o casco sofrem a cada dia nesta altitude.": "Radiation belt: the crew and hull suffer every day at this altitude.",
   "mais cara para pousar": "costlier to land from",
@@ -2467,10 +2467,10 @@
   "Recomeçar da missão": "Restart from the mission",
   "Volta ao início da etapa ou do desafio em que a missão falhou, com os recursos daquele momento.": "Goes back to the start of the stage or challenge where the mission failed, with the resources from that moment.",
   "Sua função": "Your role",
-  "Escolha sua Arca": "Choose your Arca",
-  "Outras Arcas: quem entrar com este código escolhendo outra Arca vira o Comandante dela (jornada própria). Até 28 pessoas: 4 Arcas × (Comandante + 6).": "Other Arcas: whoever joins with this code and picks another Arca becomes its Commander (own journey). Up to 28 people: 4 Arcas × (Commander + 6).",
+  "Escolha sua Nave": "Choose your Spaceship",
+  "Outras Naves: quem entrar com este código escolhendo outra Nave vira o Comandante dela (jornada própria). Até 28 pessoas: 4 Naves × (Comandante + 6).": "Other Spaceships: whoever joins with this code and picks another Spaceship becomes its Commander (own journey). Up to 28 people: 4 Spaceships × (Commander + 6).",
   "livre (o 1º que entrar vira Comandante)": "free (the first to join becomes Commander)",
-  "Até 28 jogadores: 4 Arcas, cada uma com um Comandante e 6 tripulantes. Quem cria a sala é o Comandante da Arca que escolher.": "Up to 28 players: 4 Arcas, each with a Commander and 6 crew. Whoever creates the room is the Commander of the Arca they choose.",
+  "Até 28 jogadores: 4 Naves, cada uma com um Comandante e 6 tripulantes. Quem cria a sala é o Comandante da Nave que escolher.": "Up to 28 players: 4 Spaceships, each with a Commander and 6 crew. Whoever creates the room is the Commander of the Spaceship they choose.",
   "Da próxima vez, o painel mostra o passo a passo:": "Next time, the panel shows the step by step:",
   "chegou primeiro e está resolvendo este passo.": "got here first and is solving this step.",
   "Alerta de calor: o interior ainda está bom (18–26 °C). Deixe os DOIS desligados e economize energia.": "Heat alert: the interior is still fine (18–26 °C). Leave BOTH off and save energy.",
@@ -2483,7 +2483,17 @@
   "Salvar relatório completo": "Save full report",
   "Relatório salvo.": "Report saved.",
   "Não foi possível salvar o relatório.": "Could not save the report.",
-  "Olá, Comandante. Esta é a voz do computador de bordo.": "Hello, Commander. This is the onboard computer voice."
+  "Olá, Comandante. Esta é a voz do computador de bordo.": "Hello, Commander. This is the onboard computer voice.",
+  "Narração por voz": "Voice narration",
+  "Arca-1 · Controle da Colônia": "Arca-1 · Colony Control",
+  "Suprimentos das Arcas": "Supplies from the Arcas",
+  "Colher agora": "Harvest now",
+  "Limpar bandeja": "Clear tray",
+  "Plantar na bandeja": "Plant in tray",
+  "estragou": "spoiled",
+  "pronto": "ready",
+  "crescendo": "growing",
+  "COLHER": "HARVEST"
  },
  "patterns": [
   [
@@ -3335,8 +3345,8 @@
    "Breaker reset. Shocks taken: $1."
   ],
   [
-   "^O Comandante da Arca-(\\d+) saiu\\.$",
-   "The Commander of Arca-$1 left."
+   "^O Comandante da Nave-(\\d+) saiu\\.$",
+   "The Commander of Spaceship $1 left."
   ]
  ],
  "falas": {

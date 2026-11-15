@@ -73,7 +73,7 @@ const Chat = {
     text = String(text || '').replace(/\s+/g, ' ').trim().slice(0, 200); if (!text) return;
     const now = Date.now(); if (now - this.lastSend < 350) return; this.lastSend = now;
     if (Net.role === 'client' || Net.relay) { Net.send({ t: 'chat', text }); return; } // o hub devolve a mensagem para a sala toda
-    const m = { from: this.myName(), role: 'Arca-' + (Net.mySh || 1) + ' · ' + this.myRole(), rid: U.me, arca: Net.mySh || 1, text };
+    const m = { from: this.myName(), role: 'Nave-' + (Net.mySh || 1) + ' · ' + this.myRole(), rid: U.me, arca: Net.mySh || 1, text };
     this.add(Object.assign({ mine: true }, m));
     if (Net.role === 'host') Net.send({ t: 'bcast', msg: { t: 'chat', m } });
     if (typeof S !== 'undefined' && S && U.screen === 'game') this.botReply(text);
@@ -85,7 +85,7 @@ const Chat = {
     text = String(text || '').replace(/\s+/g, ' ').trim().slice(0, 200); if (!text) return;
     const r = ROLES.find(x => x.id === p.role);
     const ship = p.ship || Net.hubShip;
-    const m = { from: p.name, role: 'Arca-' + ship + ' · ' + (r ? r.name : (p.roleName || '')), rid: p.role || 'cmd', arca: ship, text };
+    const m = { from: p.name, role: 'Nave-' + ship + ' · ' + (r ? r.name : (p.roleName || '')), rid: p.role || 'cmd', arca: ship, text };
     this.add(Object.assign({}, m));
     Net.send({ t: 'bcast', msg: { t: 'chat', m } });
     if (typeof S !== 'undefined' && S) this.botReply(text, true);

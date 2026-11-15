@@ -100,19 +100,39 @@ const Narrator = {
   },
   // fala depois do que estiver falando agora (sem cortar a narração)
   later(text) { setTimeout(() => { if (this.speaking || ('speechSynthesis' in window && speechSynthesis.speaking)) this._q = text; else this.say(text); }, 700); },
+  // limpa o que não deve ser lido em voz alta (emoji, setas, marcadores)
+  clean(t) { return String(t || '').replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]/gu, ' ').replace(/[•·★✔✖▶◀▲▼→←↑↓⏳⏩⤒☐▫■□]/g, ' ').replace(/\s+/g, ' ').trim(); },
+  // frases curtas em fila: o Chrome corta falas longas (~15 s) e às vezes ignora um speak logo depois do cancel
+  chunks(t) {
+    const out = []; let cur = '';
+    const push = s => { if ((cur + s).length > 180 && cur) { out.push(cur.trim()); cur = ''; } cur += s; };
+    for (const sent of t.match(/[^.!?…;:]+[.!?…;:]*\s*/g) || [t]) {
+      if (sent.length <= 180) { push(sent); continue; }
+      for (const w of sent.match(/[^,]+,?\s*/g)) { if (w.length <= 180) push(w); else w.split(' ').forEach(x => push(x + ' ')); } // frase longa: quebra nas vírgulas ou palavras
+    }
+    if (cur.trim()) out.push(cur.trim()); return out;
+  },
   say(text, opts) {
     if (!Save.data.settings.narration || Save.data.settings.mute || !('speechSynthesis' in window)) return;
-    try {
-      speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(L(text));
-      u.lang = (this.voice && this.voice.lang) || I18n.speech(); u.rate = (Save.data.settings.voiceRate || 1) * 0.98; u.pitch = (opts && opts.pitch) || 1;
-      if (!this.voice || !this.voice.lang.toLowerCase().startsWith(I18n.speech().slice(0, 2))) this.pickVoice();
-      if (this.voice) u.voice = this.voice;
-      u.onstart = () => { this.speaking = true; Music.refreshVolume(); };
-      u.onend = u.onerror = () => { this.speaking = false; Music.refreshVolume(); if (this._q) { const t = this._q; this._q = null; setTimeout(() => this.say(t), 350); } };
-      speechSynthesis.speak(u);
-    } catch (e) { /* ignora */ }
+    const parts = this.chunks(this.clean(L(text))); if (!parts.length) return;
+    const tok = this._tok = (this._tok || 0) + 1;
+    try { speechSynthesis.cancel(); } catch (e) { /* */ }
+    setTimeout(() => { if (tok === this._tok) this._next(parts, 0, tok, opts); }, 80);
   },
-  stop() { try { speechSynthesis.cancel(); } catch (e) { /* */ } this.speaking = false; Music.refreshVolume(); },
+  _next(parts, i, tok, opts) {
+    if (tok !== this._tok) return;
+    if (i >= parts.length) { this.speaking = false; Music.refreshVolume(); if (this._q) { const t = this._q; this._q = null; setTimeout(() => this.say(t), 350); } return; }
+    try {
+      const u = new SpeechSynthesisUtterance(parts[i]);
+      if (!this.voice || !this.voice.lang.toLowerCase().startsWith(I18n.speech().slice(0, 2))) this.pickVoice();
+      u.lang = (this.voice && this.voice.lang) || I18n.speech(); u.rate = (Save.data.settings.voiceRate || 1) * 0.98; u.pitch = (opts && opts.pitch) || 1;
+      if (this.voice) u.voice = this.voice;
+      u.onstart = () => { if (tok !== this._tok) return; this.speaking = true; Music.refreshVolume(); };
+      u.onend = u.onerror = () => this._next(parts, i + 1, tok, opts);
+      if (speechSynthesis.paused) speechSynthesis.resume();
+      speechSynthesis.speak(u);
+    } catch (e) { this.speaking = false; }
+  },
+  stop() { this._tok = (this._tok || 0) + 1; this._q = null; try { speechSynthesis.cancel(); } catch (e) { /* */ } this.speaking = false; Music.refreshVolume(); },
 };
 if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = () => { Narrator.voice = null; Narrator.pickVoice(); };

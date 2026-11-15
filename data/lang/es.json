@@ -1881,12 +1881,12 @@
   "limpo": "limpio",
   "Sequência": "Secuencia",
   "Esse filtro estava bom. Tempo perdido!": "Ese filtro estaba bien. ¡Tiempo perdido!",
-  "Arca-1 · Controle da Colônia": "Arca-1 · Control de la Colonia",
+  "Nave-1 · Controle da Colônia": "Nave-1 · Control de la Colonia",
   "Colono": "Colono",
   "Colonos": "Colonos",
   "Fonte": "Fuente",
   "Relatório do computador de bordo: dados reais": "Informe de la computadora de a bordo: datos reales",
-  "Suprimentos das Arcas": "Suministros de las Arcas",
+  "Suprimentos das Naves": "Suministros de las Naves",
   "Funciona online direto pelo navegador: não precisa de servidor nem de VPN.": "Funciona en línea directo en el navegador: no necesita servidor ni VPN.",
   "Você sabia?": "¿Sabías que…?",
   "Responder": "Responder",
@@ -2095,7 +2095,7 @@
   "A estufa produz comida e ajuda no oxigênio.": "El invernadero produce comida y ayuda con el oxígeno.",
   "O filtro de ar reserva transforma uma pane do suporte à vida numa troca rápida.": "El filtro de aire de reserva convierte una falla del soporte vital en un cambio rápido.",
   "📦 Caixinha de sugestões: +1 ponto de verba para a nave. ": "📦 Buzón de sugerencias: +1 punto de presupuesto para la nave. ",
-  "Arcas e colonos": "Arcas y colonos",
+  "Naves e colonos": "Naves y colonos",
   "João": "Luana",
   "Cinturão de radiação: a tripulação e o casco sofrem a cada dia nesta altitude.": "Cinturón de radiación: la tripulación y el casco sufren cada día a esta altitud.",
   "mais cara para pousar": "más cara para aterrizar",
@@ -2468,10 +2468,10 @@
   "Recomeçar da missão": "Reiniciar desde la misión",
   "Volta ao início da etapa ou do desafio em que a missão falhou, com os recursos daquele momento.": "Vuelve al inicio de la etapa o del desafío en que falló la misión, con los recursos de ese momento.",
   "Sua função": "Su función",
-  "Escolha sua Arca": "Elija su Arca",
-  "Outras Arcas: quem entrar com este código escolhendo outra Arca vira o Comandante dela (jornada própria). Até 28 pessoas: 4 Arcas × (Comandante + 6).": "Otras Arcas: quien entre con este código eligiendo otra Arca se vuelve su Comandante (viaje propio). Hasta 28 personas: 4 Arcas × (Comandante + 6).",
+  "Escolha sua Nave": "Elija su Nave",
+  "Outras Naves: quem entrar com este código escolhendo outra Nave vira o Comandante dela (jornada própria). Até 28 pessoas: 4 Naves × (Comandante + 6).": "Otras Naves: quien entre con este código eligiendo otra Nave se vuelve su Comandante (viaje propio). Hasta 28 personas: 4 Naves × (Comandante + 6).",
   "livre (o 1º que entrar vira Comandante)": "libre (el primero en entrar será Comandante)",
-  "Até 28 jogadores: 4 Arcas, cada uma com um Comandante e 6 tripulantes. Quem cria a sala é o Comandante da Arca que escolher.": "Hasta 28 jugadores: 4 Arcas, cada una con un Comandante y 6 tripulantes. Quien crea la sala es el Comandante de la Arca que elija.",
+  "Até 28 jogadores: 4 Naves, cada uma com um Comandante e 6 tripulantes. Quem cria a sala é o Comandante da Nave que escolher.": "Hasta 28 jugadores: 4 Naves, cada una con un Comandante y 6 tripulantes. Quien crea la sala es el Comandante de la Nave que elija.",
   "Da próxima vez, o painel mostra o passo a passo:": "La próxima vez, el panel muestra el paso a paso:",
   "chegou primeiro e está resolvendo este passo.": "llegó primero y está resolviendo este paso.",
   "Alerta de calor: o interior ainda está bom (18–26 °C). Deixe os DOIS desligados e economize energia.": "Alerta de calor: el interior aún está bien (18–26 °C). Deje AMBOS apagados y ahorre energía.",
@@ -2484,7 +2484,17 @@
   "Salvar relatório completo": "Guardar informe completo",
   "Relatório salvo.": "Informe guardado.",
   "Não foi possível salvar o relatório.": "No se pudo guardar el informe.",
-  "Olá, Comandante. Esta é a voz do computador de bordo.": "Hola, Comandante. Esta es la voz de la computadora de a bordo."
+  "Olá, Comandante. Esta é a voz do computador de bordo.": "Hola, Comandante. Esta es la voz de la computadora de a bordo.",
+  "Narração por voz": "Narración por voz",
+  "Arca-1 · Controle da Colônia": "Arca-1 · Control de la Colonia",
+  "Suprimentos das Arcas": "Suministros de las Arcas",
+  "Colher agora": "Cosechar ahora",
+  "Limpar bandeja": "Limpiar bandeja",
+  "Plantar na bandeja": "Plantar en la bandeja",
+  "estragou": "estropeado",
+  "pronto": "listo",
+  "crescendo": "creciendo",
+  "COLHER": "COSECHAR"
  },
  "patterns": [
   [
@@ -3336,8 +3346,8 @@
    "Disyuntor restablecido. Descargas recibidas: $1."
   ],
   [
-   "^O Comandante da Arca-(\\d+) saiu\\.$",
-   "El Comandante de la Arca-$1 salió."
+   "^O Comandante da Nave-(\\d+) saiu\\.$",
+   "El Comandante de la Nave-$1 salió."
   ]
  ],
  "falas": {

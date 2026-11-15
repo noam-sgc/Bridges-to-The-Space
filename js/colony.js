@@ -569,7 +569,7 @@ function colonyPanel(id) {
   } else if (id === 'habitat') {
     body = buildBlock(id) + `<p>${esc(L('Camas'))}: <b>${C.colonists}/${colonyBeds()}</b> · ${esc(L('Naves previstas'))}: 10 + 15 + 20</p>`;
   } else body = buildBlock(id);
-  if (id === 'nave') body += sec(K('Arcas e colonos', 'Arcas and colonists', 'Arcas y colonos')) + arcaPeopleBlock();
+  if (id === 'nave') body += sec(K('Naves e colonos', 'Spaceships and colonists', 'Naves y colonos')) + arcaPeopleBlock();
   body += arcaPanelExtra(id);
   body = ctaskBar(id === 'nave' ? '__' : id) + body;
   return `<div class="modal-bg" data-ui="closePanel"><div class="panel station wide" data-stop="1"><button class="x" data-ui="closePanel">✕</button><h2>${B.icon} ${esc(L(B.name))}</h2>${body}<p class="quote small">🛰 ${esc(L(B.fact))}</p></div></div>`;

@@ -150,9 +150,9 @@ const Net = {
           if (r && r.ship !== this.hubShip) { // saiu alguém de outra Arca
             const a = this.arcas[r.ship];
             if (a && a.cmdPid === m.pid) { // o Comandante saiu: a Arca fecha
-              a.members.forEach(pid => this.sendTo(pid, { t: 'closed', msg: `O Comandante da Arca-${r.ship} saiu.` }));
+              a.members.forEach(pid => this.sendTo(pid, { t: 'closed', msg: `O Comandante da Nave-${r.ship} saiu.` }));
               delete this.arcas[r.ship];
-              Chat.sysAll(K(`O Comandante da Arca-${r.ship} saiu.`, `The Commander of Arca-${r.ship} left.`, `El Comandante de la Arca-${r.ship} salió.`), 'join');
+              Chat.sysAll(K(`O Comandante da Nave-${r.ship} saiu.`, `The Commander of Spaceship ${r.ship} left.`, `El Comandante de la Nave-${r.ship} salió.`), 'join');
             } else if (a) { a.members = a.members.filter(x => x !== m.pid); this.sendTo(a.cmdPid, { t: 'leave', pid: m.pid }); }
             return;
           }
@@ -231,7 +231,7 @@ const Net = {
       this.arcas[ship] = { cmdPid: m.pid, members: [], cmdName: nm };
       this.roster[m.pid].cmd = true; this.roster[m.pid].roleName = 'Comandante';
       this.sendTo(m.pid, { t: 'welcome', cmd: true, ship, code: this.room, roleName: 'Comandante' });
-      Chat.sysAll(K(`${nm} é o Comandante da Arca-${ship}.`, `${nm} is the Commander of Arca-${ship}.`, `${nm} es el Comandante de la Arca-${ship}.`), 'join');
+      Chat.sysAll(K(`${nm} é o Comandante da Nave-${ship}.`, `${nm} is the Commander of Spaceship ${ship}.`, `${nm} es el Comandante de la Nave-${ship}.`), 'join');
       return;
     }
     this.sendTo(a.cmdPid, { t: 'join', pid: m.pid, name: nm, avatar: m.avatar, role: m.role }); // o Comandante da Arca atribui a função
