@@ -1,0 +1,69 @@
+// ============================================================
+//  BARRA RÁPIDA (sempre visível): áudio, efeitos, configurações e
+//  voltar à fase anterior. Vale na cidade, na montagem, no avatar,
+//  na nave, no planeta e na colônia.
+// ============================================================
+'use strict';
+
+const PHASE_SKIP = ['intro', 'launch', 'end'];
+const Phases = {
+  hist: [], runId: null, last: null,
+  // guarda o estado na entrada de cada fase
+  tick() {
+    if (!S || U.screen !== 'game' || (typeof Net !== 'undefined' && Net.role === 'client')) return;
+    if (S.runId !== this.runId) { this.hist = []; this.runId = S.runId; this.last = null; }
+    if (S.scene === this.last) return;
+    this.last = S.scene;
+    if (PHASE_SKIP.includes(S.scene)) return;
+    if (this.hist.length && this.hist[this.hist.length - 1].scene === S.scene) return;
+    this.hist.push({ scene: S.scene, S: clone(S), comms: U.comms || 0 });
+    if (this.hist.length > 10) this.hist.shift();
+  },
+  // fase anterior à atual (se a atual não está na lista, como o lançamento, a última registrada)
+  prev() {
+    const n = this.hist.length; if (!S || !n) return null;
+    if (this.hist[n - 1].scene !== S.scene) return this.hist[n - 1];
+    return n >= 2 ? this.hist[n - 2] : null;
+  },
+  back() {
+    const p = this.prev(); if (!p) return;
+    const i = this.hist.indexOf(p); this.hist.length = i + 1;
+    Narrator.stop();
+    GameSave.apply({ S: p.S, U: { comms: 0 } });
+    if (S.scene === 'setup') { U.setupStep = 0; U.setupDirty = true; }
+    this.last = S.scene; GameSave.lastScene = S.scene;
+    const nm = SCENE_NAMES[S.scene] || {};
+    toast(K('◀ De volta a: ' + (nm.pt || S.scene), '◀ Back to: ' + (nm.en || S.scene), '◀ De vuelta a: ' + (nm.es || S.scene)), 'good');
+  },
+};
+
+function quickBar() {
+  const st = Save.data.settings;
+  const inGame = S && U.screen === 'game';
+  const p = inGame && !['intro', 'end'].includes(S.scene) && !(typeof Net !== 'undefined' && Net.role === 'client') ? Phases.prev() : null;
+  return `<div class="qbar">
+    <button class="qb ${st.mute ? 'off' : ''}" data-ui="qAudio" title="${esc(L(K('Áudio (música e voz)', 'Audio (music and voice)', 'Audio (música y voz)')))}">${st.mute ? '🔇' : '🔊'}</button>
+    <button class="qb ${st.sfxOff ? 'off' : ''}" data-ui="qSfx" title="${esc(L(K('Efeitos sonoros', 'Sound effects', 'Efectos de sonido')))}">${st.sfxOff ? '🔕' : '🔔'}</button>
+    <button class="qb" data-ui="qSettings" title="${esc(L(K('Configurações', 'Settings', 'Configuración')))}">⚙</button>
+    ${p ? `<button class="qb" data-ui="qBack" title="${esc(L(K('Voltar para a fase anterior', 'Back to the previous phase', 'Volver a la fase anterior')))}: ${esc(L(SCENE_NAMES[p.scene] || p.scene))}">◀</button>` : ''}
+  </div>`;
+}
+UIH.qAudio = () => { const st = Save.data.settings; st.mute = !st.mute; Save.write(); if (st.mute) Narrator.stop(); Music.refreshVolume(); };
+UIH.qSfx = () => { const st = Save.data.settings; st.sfxOff = !st.sfxOff; Save.write(); };
+UIH.qSettings = () => { if (S && U.screen === 'game') U.qset = !U.qset; else U.screen = 'settings'; };
+UIH.qBack = () => {
+  const p = Phases.prev(); if (!p) return;
+  if (!U.qBackAsk || Date.now() - U.qBackAsk > 4000) { U.qBackAsk = Date.now(); toastLocal(K('Toque ◀ de novo para voltar a: ' + L(SCENE_NAMES[p.scene] || ''), 'Tap ◀ again to go back to: ' + L(SCENE_NAMES[p.scene] || ''), 'Toque ◀ otra vez para volver a: ' + L(SCENE_NAMES[p.scene] || ''))); return; }
+  U.qBackAsk = 0; U.qset = false; Phases.back();
+};
+(function () {
+  const _close = UIH.closePanel; UIH.closePanel = function () { if (U.qset) { U.qset = false; return; } _close(); };
+  const _render = renderUI;
+  renderUI = function () {
+    Phases.tick();
+    if (typeof guideAutoPontes === 'function') guideAutoPontes();
+    _render();
+    setHTML('qbar', quickBar());
+    if (U.qset && S && U.screen === 'game') setHTML('modal', `<div class="modal-bg">${settingsScreen(true)}</div>`);
+  };
+})();

@@ -222,6 +222,7 @@ function objectiveMet() {
       <p class="muted">${esc(kk('Já montamos uma nave equilibrada para você. É só decolar!', 'We already built a balanced ship for you. Just launch!', 'Ya armamos una nave equilibrada para ti. ¡Solo despega!'))}</p>
       <div class="qgrid">${items.join('')}</div>
       <div class="qline"><span>🧭 ${esc(T(route.name || ''))}</span><span>🚀 ${esc(L(lv.name || ''))}</span><span>💰 ${setupBudget() - setupCost(st)} pts ${esc(kk('de reserva', 'in reserve', 'de reserva'))}</span></div>
+      <div class="qorigin"><b>👤 ${esc(kk('Especialidade do Comandante', 'Commander specialty', 'Especialidad del Comandante'))}</b><div class="mchips">${ORIGINS.map(o => `<button class="chip ${S.setup.origin === o.id ? 'on' : ''}" data-ui="setOrigin" data-arg="${o.id}" title="${esc(T(o.bonus))}">${esc(T(o.name))}</button>`).join('')}</div><small class="muted">${esc(T((ORIGINS.find(o => o.id === S.setup.origin) || {}).bonus || ''))}</small></div>
       <div class="row qbtns"><button class="btn primary huge" data-ui="launch">🚀 ${esc(kk('DECOLAR', 'LAUNCH', 'DESPEGAR'))}</button><button class="btn huge2" data-ui="buildOwn">🛠 ${esc(kk('Montar a minha', 'Build my own', 'Armar la mía'))}</button></div>
     </div></div>`;
   };

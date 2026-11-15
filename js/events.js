@@ -683,6 +683,7 @@ function thermalEnd(ev) {
   narrate('A zona de calor ficou para trás. Aqui no espaço, cada grau precisa ser controlado por nós, com energia, tempo e recursos limitados. Na Terra, a atmosfera faz isso sozinha, de graça.');
   const text = `Resultado: ${grade}. Custo para manter a temperatura: ${fmt(th.kwh)} kWh de energia, ${fmt(th.fuel, 0)} kg de combustível. Plantação perdida: ${fmt(th.plantsLost, 0)} kg. Tempo fora da faixa segura: ${fmt(th.outT, 0)} s.`;
   ev.data.grade = grade;
+  if (grade === 'Crítico' || th.outT > th.D * 0.3) { S.thermGuide = true; try { Save.data.thermGuide = true; Save.write(); } catch (e) { /* */ } } // errou: da próxima vez, passo a passo
   ev.data.report = { kwh: th.kwh, fuel: th.fuel, plants: th.plantsLost, outT: th.outT, fails: 0, gb: 0 };
   endEvent(grade !== 'Crítico', { text, points: pts, grade, ok: grade !== 'Crítico' });
   S.event.result.points = pts;
@@ -716,7 +717,21 @@ ACTIONS.analyzeExo = p => {
   addRes('dados', -cost, 'Análise de exoplaneta'); S.explore.analyzed.push(p.id);
 };
 // Destino livre: o jogador pode escolher qualquer exoplaneta, até os errados (e aprender com as consequências).
-ACTIONS.setDest = p => { if (p.id !== 'pontes') return; /* só Pontes-01b pode ser o destino */ if (EXOPLANETS.some(e => e.id === p.id)) S.explore.dest = p.id; };
+// destino: na primeira tentativa qualquer planeta (errar ensina); depois de um erro, só Pontes-01b
+ACTIONS.setDest = p => { if (p.id !== 'pontes' && S.explore.wrongOnce) return; if (EXOPLANETS.some(e => e.id === p.id)) S.explore.dest = p.id; };
+// guia depois do erro: o botão de Pontes-01b parte direto
+ACTIONS.goPontes = () => { if (S.scene !== 'station') return; S.explore.guideAt = 0; S.explore.dest = 'pontes'; ACTIONS.leaveStation(); };
+// sem clique em 5 s: a nave segue sozinha para Pontes-01b e vai direto à escolha do local de pouso
+function guideAutoPontes() {
+  if (!S || S.scene !== 'station' || !S.explore.guideAt || (typeof Net !== 'undefined' && Net.role === 'client')) return;
+  if (Date.now() - S.explore.guideAt < 5000) return;
+  S.explore.guideAt = 0; S.explore.dest = 'pontes'; S.explore.chosen = 'pontes';
+  leaveStation(); S.event = null; S.progress = 1; enterPlanet();
+  S.planet = S.planet || { analyzed: [], challenges: [], site: null };
+  if (!S.planet.site) S.planet.site = bestSite().id;
+  S.stage = 4; S.scene = 'migration';
+  narrate('Rota automática para Pontes-01b. Escolha agora o local de pouso da colônia.');
+}
 ACTIONS.chooseExo = ACTIONS.setDest;
 function tripCost(exo, back) {
   const t = exo.trip; const k = back ? 0.9 : 1;
@@ -764,6 +779,7 @@ ACTIONS.detourReturn = () => {
   if (S.res.comida <= 0) moral(-15);
   S.explore.visited = S.explore.visited || {}; S.explore.visited[exo.id] = true;
   S.explore.dest = null; S.detour = null; S.scene = 'station'; S.stage = 2;
+  S.explore.wrongOnce = true; S.explore.guideAt = Date.now(); // trava os outros planetas e destaca Pontes-01b
   moral(-3);
   addPoints(10, 'Lição aprendida: dados de um exoplaneta real');
   narrate('De volta à Estação Ponte-Alfa. Escolha o próximo destino com mais cuidado, Comandante.');

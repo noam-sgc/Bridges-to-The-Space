@@ -114,13 +114,27 @@ function tickCity(dt) {
     if (dx) { p.x = clamp(p.x + dx * sp * dt, 20, EARTH_W - 20); p.face = dx; p.moving = true; p.walkT += dt * (sp / 62); } else p.moving = false;
   } else { E.p.moving = false; if (E.target != null && E.dialog) { const d = E.target - E.p.x; if (Math.abs(d) > 3) { E.p.x += Math.sign(d) * 62 * dt; E.p.face = Math.sign(d); E.p.moving = true; E.p.walkT += dt; } else E.target = null; } }
 }
-// cada prédio visitado na jornada vale +8 créditos (Loja e Quiz)
+// caixinha de sugestões em cada prédio: +1 ponto de verba para montar a nave e uma dica do que levar
+const CITY_TIPS = {
+  casa: ['racaoExtra', K('Leve ração extra: a comida é o que mais aperta na viagem.', 'Take extra rations: food is what runs tightest on the trip.', 'Lleve ración extra: la comida es lo que más aprieta en el viaje.')],
+  missao: ['tanqueExtra', K('Margem de combustível salva missões: considere o tanque extra.', 'Propellant margin saves missions: consider the extra tank.', 'El margen de combustible salva misiones: considere el tanque extra.')],
+  mercado: ['reciclaAgua', K('O reciclador de água recupera quase toda a água de bordo.', 'The water recycler recovers almost all the water on board.', 'El reciclador de agua recupera casi toda el agua de a bordo.')],
+  observatorio: ['radar', K('O radar avisa os desafios com antecedência.', 'The radar warns of challenges in advance.', 'El radar avisa de los desafíos con antelación.')],
+  clinica: ['enfermaria', K('Sem enfermaria, feridos graves podem morrer.', 'Without an infirmary, badly injured crew can die.', 'Sin enfermería, los heridos graves pueden morir.')],
+  controle: ['antena', K('A antena de alto ganho evita quedas de comunicação.', 'The high-gain antenna prevents communication drops.', 'La antena de alta ganancia evita caídas de comunicación.')],
+  recicla: ['reciclaLixo', K('O reciclador de lixo transforma resíduos em recursos.', 'The trash recycler turns waste into resources.', 'El reciclador de basura convierte residuos en recursos.')],
+  sementes: ['estufa', K('A estufa produz comida e ajuda no oxigênio.', 'The greenhouse grows food and helps with oxygen.', 'El invernadero produce comida y ayuda con el oxígeno.')],
+  alistamento: ['filtroReserva', K('O filtro de ar reserva transforma uma pane do suporte à vida numa troca rápida.', 'The spare air filter turns a life-support failure into a quick swap.', 'El filtro de aire de reserva convierte una falla del soporte vital en un cambio rápido.')],
+};
 function cityVisit(id) {
-  const E = U.earth; if (!E || E.read[id + ':0']) return;
-  if (S) { S.cityPaid = S.cityPaid || {}; if (S.cityPaid[id]) return; S.cityPaid[id] = 1; }
-  Save.data.credits += 8; Save.write(); Sfx.tone(1320, 0.08, 'square', 0.04);
-  if (S) S.toast = { text: '✦ +8 ' + L('créditos') + ' — ' + L((CITY_BUILDINGS.find(b => b.id === id) || {}).name || ''), kind: 'good', t: 2.5, id: Math.random() };
+  const E = U.earth; if (!E || E.read[id + ':0'] || !S) return;
+  S.cityPaid = S.cityPaid || {}; if (S.cityPaid[id]) return; S.cityPaid[id] = 1;
+  const tip = CITY_TIPS[id];
+  if (tip) { S.citySug = S.citySug || []; if (!S.citySug.includes(tip[0])) S.citySug.push(tip[0]); }
+  Sfx.tone(1320, 0.08, 'square', 0.04);
+  S.toast = { text: K('📦 Caixinha de sugestões: +1 ponto de verba para a nave. ', '📦 Suggestion box: +1 budget point for the ship. ', '📦 Buzón de sugerencias: +1 punto de presupuesto para la nave. '), tip: tip ? tip[1] : null, kind: 'good', t: 5, id: Math.random() };
 }
+const cityBoxes = () => Object.keys((S && S.cityPaid) || {}).length;
 function cityComms() {
   if (typeof Net !== 'undefined' && Net.role === 'client') { if (S) S.toast = { text: 'O Comandante embarca todos no foguete quando estiver pronto.', kind: 'info', t: 3, id: Math.random() }; return; } // só o Comandante decide a partida
   U.comms = 1; U.earth.panel = null; U.earth.dialog = null; U.earth.diary = false; Sfx.alarm();
@@ -150,6 +164,12 @@ function drawCity(dt, cam) {
     for (let wy = G - b.h + 10; wy < G - 24; wy += 12) for (let wx = -hw + 8; wx < hw - 8; wx += 14) { if (Math.abs(wx) < 10 && wy > G - 40) continue; r(wx, wy, 7, 6, hash(wx + b.x, wy, 3) > 0.5 ? '#e8c660' : '#1e1a16'); }
     // porta iluminada
     r(-8, G - 24, 16, 24, '#171310'); r(-6, G - 22, 12, 22, '#ffd98a'); r(-1, G - 22, 2, 22, '#9a7a40');
+    // caixinha de sugestões ao lado da porta (some depois de pega)
+    if (!(S && S.cityPaid && S.cityPaid[b.id])) {
+      const by = G - 9 + Math.round(Math.sin(R.t * 3 + b.x) * 1);
+      r(12, by, 10, 9, '#b07a3a'); r(12, by, 10, 2, '#e0a85a'); r(16, by, 2, 9, '#7a5226');
+      text('?', x + 17, by - 9, '#ffd34c', 8, 'center');
+    }
     const hot = near && near.type === 'b' && near.o === b;
     if (hot) { cx.strokeStyle = '#ffd34c'; cx.lineWidth = 1; cx.strokeRect(x - hw - 2.5, G - b.h - 7.5, b.w + 5, b.h + 8); }
     // adornos

@@ -281,12 +281,13 @@ function setupScreen() {
     const locked = it.req && !st[list].includes(it.req);
     const slotFull = list === 'modules' && !on && slots + it.slots > SLOTS;
     const cant = !on && (it.pts > left || locked || slotFull);
-    return `<button class="opt ${on ? 'on' : ''} ${cant ? 'cant' : ''}" data-ui="setToggle" data-arg="${list}:${it.id}" title="${esc(T(it.desc))}"><b>${ITEM_ICON[it.id] || '▪'} ${esc(it.name)}</b><span class="idesc">${esc(it.desc)}</span><em>${it.pts} pts${typeof massOfItem === 'function' && massOfItem(it.id) ? ' · ' + massOfItem(it.id) + ' kg' : ''}${it.slots ? ' · ' + it.slots + ' slot' + (it.slots > 1 ? 's' : '') : ''}${locked ? ' · requer anterior' : ''}${extra}</em></button>`;
+    const sug = (S.citySug || []).includes(it.id);
+    return `<button class="opt ${on ? 'on' : ''} ${cant ? 'cant' : ''} ${sug ? 'sug' : ''}" data-ui="setToggle" data-arg="${list}:${it.id}" title="${esc(T(it.desc))}"><b>${sug ? '💡 ' : ''}${ITEM_ICON[it.id] || '▪'} ${esc(it.name)}</b><span class="idesc">${esc(it.desc)}</span><em>${it.pts} pts${typeof massOfItem === 'function' && massOfItem(it.id) ? ' · ' + massOfItem(it.id) + ' kg' : ''}${it.slots ? ' · ' + it.slots + ' slot' + (it.slots > 1 ? 's' : '') : ''}${locked ? ' · requer anterior' : ''}${extra}</em></button>`;
   };
   let body = '';
   switch (step.id) {
     case 'mission': body = `<h4>🧭 ${esc(T('Rota'))}</h4><div class="opts">${ROUTES.map(r => `<button class="opt ${st.route === r.id ? 'on' : ''}" data-ui="setRoute" data-arg="${r.id}"><b>${{ rapida: '⚡', equilibrada: '⚖', segura: '🛡' }[r.id] || ''} ${r.name}</b><span>${r.desc}</span>${typeof ROUTE_DV !== 'undefined' ? `<em>Δv ${ROUTE_DV[r.id]} m/s</em>` : ''}</button>`).join('')}</div>
-      <details class="evinfo"><summary>👤 ${esc(T('Origem do Comandante'))}: <b>${esc(T((ORIGINS.find(o => o.id === st.origin) || {}).name || ''))}</b></summary><div class="opts">${ORIGINS.map(o => `<button class="opt ${st.origin === o.id ? 'on' : ''}" data-ui="setOrigin" data-arg="${o.id}"><b>${o.name}</b><span>${o.bonus}</span></button>`).join('')}</div></details>`; break;
+      <h4>👤 ${esc(T('Origem do Comandante'))}: <b>${esc(T((ORIGINS.find(o => o.id === st.origin) || {}).name || ''))}</b></h4><div class="opts">${ORIGINS.map(o => `<button class="opt ${st.origin === o.id ? 'on' : ''}" data-ui="setOrigin" data-arg="${o.id}"><b>${o.name}</b><span>${o.bonus}</span></button>`).join('')}</div>`; break;
     case 'modules': body = `<p class="muted small">${esc(L('5 slots · o reator de fusão ocupa 2'))}</p><div class="opts">${MODULES.map(m => item(m, 'modules')).join('')}</div>`; break;
     case 'supplies': body = `<div class="opts">${RESERVES.map(r => item(r, 'reserves')).join('')}${ESSENTIALS.map(([list, id]) => { const cat = list === 'pantry' ? PANTRY : UPGRADES; const it = cat.find(x => x.id === id); return it ? item(it, list) : ''; }).join('')}</div>`; break;
     case 'report': body = `<div class="fund"><div class="bignum">${left}</div><p class="small">${L('pontos sobrando viram <b>fundo de contingência</b> para emergências na viagem.')}</p></div><div class="report-list">${(() => { const bad = readinessAlerts().filter(a => a[0] === 'bad').slice(0, 3); return bad.length ? bad.map(a => `<div class="alert bad">${esc(a[1])}</div>`).join('') : `<div class="alert good">✔ ${esc(L('Nave pronta para decolar.'))}</div>`; })()}</div><div class="row"><button class="btn primary big" data-ui="launch">🚀 DECOLAR</button></div>`; break;
@@ -294,7 +295,7 @@ function setupScreen() {
   return `<div class="setup">
     <div class="setup-side">
       <h3>MONTAGEM</h3>
-      <div class="budget"><div>Verba <b class="${left < 0 ? 'red' : ''}">${left}</b> / ${budget}</div><div>Slots <b>${slots}</b> / ${SLOTS}</div></div>
+      <div class="budget"><div>Verba <b class="${left < 0 ? 'red' : ''}">${left}</b> / ${budget}${S.earthBonus ? ` <small class="green">(📦 +${S.earthBonus})</small>` : ''}</div><div>Slots <b>${slots}</b> / ${SLOTS}</div></div>
       <ol class="steps">${SETUP_STEPS.map((s, i) => `<li class="${i === U.setupStep ? 'on' : ''} ${i < U.setupStep ? 'done' : ''}" data-ui="setStep" data-arg="${i}">${s.title}</li>`).join('')}</ol>
       <div class="muted small">Jornada ${S.journey === 'curta' ? 'Curta' : 'Completa'}</div>
     </div>
@@ -394,6 +395,7 @@ function eventPanel() {
   if (ev.phase === 'warn') {
     return `<div class="evp warn compact">${head('warn')}<div class="schips">${sysChips}${info.energy ? `<div class="schip"><span>⚡</span>${bar(S.res.energia, S.cap.energia)}</div>` : ''}</div>
       <details class="evinfo"><summary>ℹ ${esc(L('O que está acontecendo?'))}</summary><p class="small">${info.desc}</p></details>
+      ${ev.type === 'termico' && (S.thermGuide || Save.data.thermGuide) ? thermalGuideHTML(-1) : ''}
       <div class="row"><b class="yellow big">⏱ ${esc(L('Começa em'))} ${Math.ceil(ev.warnT)}s</b></div></div>`;
   }
   if (ev.phase === 'result') {
@@ -401,6 +403,7 @@ function eventPanel() {
     return `<div class="evp result compact ${r.ok ? 'ok' : 'bad'}">${head()}<div class="bigres ${r.ok ? 'green' : 'red'}">${r.ok ? '✔' : '✖'} ${r.grade || (r.ok ? 'SUCESSO' : 'FALHA')}</div>
       ${r.points > 0 ? `<p class="cyan">+${r.points} pontos</p>` : ''}
       ${r.ok ? (r.text ? `<details class="evinfo"><summary>ℹ ${esc(L('Detalhes'))}</summary><p class="small">${esc(r.text)}</p></details>` : '') : `<div class="alert bad small"><b>⚠ ${esc(L('Consequência'))}:</b> <span>${esc(r.text || L('a nave sofreu danos.'))}</span>${r.delay ? `<br><span>⏳ ${esc(L('A missão atrasou.'))}</span>` : ''}</div>`}
+      ${ev.type === 'termico' && !r.ok ? `<p class="small yellow">${esc(L(K('Da próxima vez, o painel mostra o passo a passo:', 'Next time, the panel shows the step by step:', 'La próxima vez, el panel muestra el paso a paso:')))}</p>${thermalGuideHTML(null)}` : ''}
       <div class="row"><button class="btn primary" data-act="eventClose">Continuar ▶</button></div></div>`;
   }
   if (ev.type === 'termico') return thermalPanel();
@@ -490,6 +493,18 @@ function puzzleHTML(ev) {
 }
 function shuffleStable(arr, seed) { const a = arr.slice(); let s = seed; for (let i = a.length - 1; i > 0; i--) { s = (s * 9301 + 49297) % 233280; const j = s % (i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
+// passo a passo da Regulação Térmica (aparece depois de errar uma vez)
+const TH_STEPS = [
+  { sc: 0, t: K('Alerta de calor: o interior ainda está bom (18–26 °C). Deixe os DOIS desligados e economize energia.', 'Heat alert: the interior is still fine (18–26 °C). Leave BOTH off and save energy.', 'Alerta de calor: el interior aún está bien (18–26 °C). Deje AMBOS apagados y ahorre energía.') },
+  { sc: 2, t: K('A estrela se aproxima (lado do Sol a +120 °C): LIGUE o resfriador ❄.', 'The star gets closer (sun side at +120 °C): turn the cooler ON ❄.', 'La estrella se acerca (lado del Sol a +120 °C): ENCIENDA el enfriador ❄.') },
+  { sc: 4, t: K('Sobrecarga elétrica: os equipamentos esquentam a nave. MANTENHA o resfriador ligado.', 'Electrical overload: the equipment heats the ship. KEEP the cooler on.', 'Sobrecarga eléctrica: los equipos calientan la nave. MANTENGA el enfriador encendido.') },
+  { sc: 5, t: K('Entrada na sombra: vai esfriar rápido. DESLIGUE o resfriador e LIGUE o aquecedor 🔥.', 'Entering the shadow: it will cool fast. Turn the cooler OFF and the heater ON 🔥.', 'Entrada en la sombra: se enfriará rápido. APAGUE el enfriador y ENCIENDA el calentador 🔥.') },
+];
+function thermalGuideHTML(cur) {
+  const idx = cur == null ? -1 : TH_STEPS.reduce((a, s, i) => (cur >= s.sc ? i : a), 0);
+  return `<div class="thguide"><b>📋 ${esc(L(K('Passo a passo', 'Step by step', 'Paso a paso')))}</b><ol>${TH_STEPS.map((s, i) => `<li class="${i === idx ? 'now' : i < idx ? 'done' : ''}">${i === idx ? '▶ ' : i < idx ? '✔ ' : ''}${esc(L(s.t))}</li>`).join('')}</ol>
+    <p class="small muted">${esc(L(K('Dica: nunca deixe a energia cair abaixo de 9 kWh — cada aparelho ligado gasta energia o tempo todo.', 'Tip: never let energy fall below 9 kWh — every device that is on keeps draining it.', 'Consejo: nunca deje que la energía baje de 9 kWh — cada aparato encendido gasta energía todo el tiempo.')))}</p></div>`;
+}
 function thermalPanel() {
   const th = S.thermal; if (!th) return '';
   const tcol = th.T > 26 ? 'red' : th.T < 18 ? 'cyan' : 'green';
@@ -510,7 +525,7 @@ function thermalPanel() {
     <div class="timer">${bar(S.event.t, th.D, 'time')}<b>${Math.floor(S.event.t / 60)}:${String(Math.floor(S.event.t % 60)).padStart(2, '0')}</b></div>
     <div class="thermos">${thermo('Sol', th.sun, -160, 130, 'hot')}${thermo('Sombra', th.shade, -160, 130, 'cold')}<div class="thermo main"><div class="tube"><i class="${tcol}" style="height:${clamp((th.T - 0) / 50, 0, 1) * 100}%"></i><span class="band-safe"></span></div><b class="${tcol}">${fmt(th.T, 1)}°</b><small>${esc(L('Interior'))}</small></div>
       <div class="thres"><div><span>⚡ ${esc(L('Energia'))}</span>${bar(S.res.energia, S.cap.energia)}<b>${fmt(S.res.energia, 1)} kWh</b></div><p class="small">${L('Meta: manter o interior entre <b>18 °C e 26 °C</b>.')}</p><p class="small ${hint[0]}">${esc(hint[1])}</p></div></div>
-    ${fix}<div class="thctrls two">${ctrl('heat')}${ctrl('cool')}</div>
+    ${fix}${S.thermGuide || Save.data.thermGuide ? thermalGuideHTML(th.scene) : ''}<div class="thctrls two">${ctrl('heat')}${ctrl('cool')}</div>
     <div class="evlog">${th.msgs.slice(-3).map(m => `<div>${esc(m)}</div>`).join('')}</div>
   </div>`;
 }
@@ -671,8 +686,10 @@ function stationScreen() {
       <div class="exos">${EXOPLANETS.map(e => {
         const an = S.explore.analyzed.includes(e.id); const vis = S.explore.visited && S.explore.visited[e.id];
         const dist = typeof e.dist === 'number' ? fmt(e.dist, 1) + ' ' + L('anos-luz') : L('na rota');
-        return `<div class="exo ${dest === e.id ? 'on' : ''} ${vis ? 'visited' : ''}"><b>${e.name}</b>${vis ? ` <em class="red">✖ ${esc(L('visitado: inabitável'))}</em>` : ''}${an || vis ? `<div class="kv small"><span>${esc(L('Distância'))}</span><b>${dist}</b><span>${esc(L('Raio/massa'))}</span><b>${e.radius}</b><span>${esc(L('Gravidade'))}</span><b>${EXO_GRAV[e.id] ? (I18n.lang === 'en' ? EXO_GRAV[e.id].replace(',', '.') : EXO_GRAV[e.id]) : '—'}</b><span>${esc(L('Temp. de equilíbrio'))}</span><b>${e.teq} K</b><span>${esc(L('Ano'))}</span><b>${e.period} ${esc(L('dias'))}</b><span>${esc(L('Distância orbital'))}</span><b>${e.sma} UA</b><span>${esc(L('Descoberta'))}</span><b>${esc(T(e.disc))}</b><span>${esc(L('Estrela'))}</span><b>${esc(T(e.star))}</b><span>ESI</span><b>${e.esi}</b></div><p class="small muted">${esc(T(e.issues))}</p>` : `<button class="btn tiny" data-act="analyzeExo" data-p='${J({ id: e.id })}'>${esc(L('Analisar'))}</button>`}
-        ${e.id === 'pontes' ? `<button class="btn tiny ${dest === e.id ? 'primary' : ''}" data-act="setDest" data-p='${J({ id: e.id })}'>${dest === e.id ? '✔ ' : ''}${esc(L('Destino'))}</button>` : ''}</div>`;
+        return `<div class="exo ${dest === e.id ? 'on' : ''} ${vis ? 'visited' : ''} ${S.explore.wrongOnce ? (e.id === 'pontes' ? 'guide' : 'locked') : ''}"><b>${e.name}</b>${vis ? ` <em class="red">✖ ${esc(L('visitado: inabitável'))}</em>` : ''}${an || vis ? `<div class="kv small"><span>${esc(L('Distância'))}</span><b>${dist}</b><span>${esc(L('Raio/massa'))}</span><b>${e.radius}</b><span>${esc(L('Gravidade'))}</span><b>${EXO_GRAV[e.id] ? (I18n.lang === 'en' ? EXO_GRAV[e.id].replace(',', '.') : EXO_GRAV[e.id]) : '—'}</b><span>${esc(L('Temp. de equilíbrio'))}</span><b>${e.teq} K</b><span>${esc(L('Ano'))}</span><b>${e.period} ${esc(L('dias'))}</b><span>${esc(L('Distância orbital'))}</span><b>${e.sma} UA</b><span>${esc(L('Descoberta'))}</span><b>${esc(T(e.disc))}</b><span>${esc(L('Estrela'))}</span><b>${esc(T(e.star))}</b><span>ESI</span><b>${e.esi}</b></div><p class="small muted">${esc(T(e.issues))}</p>` : `<button class="btn tiny" data-act="analyzeExo" data-p='${J({ id: e.id })}'>${esc(L('Analisar'))}</button>`}
+        ${S.explore.wrongOnce
+          ? (e.id === 'pontes' ? `${S.explore.guideAt ? '<div class="bigarrow">⬇</div>' : ''}<button class="btn primary ${S.explore.guideAt ? 'must' : ''}" data-act="goPontes">🚀 ${esc(L('Ir para Pontes-01b'))}</button>` : '')
+          : `<button class="btn tiny ${dest === e.id ? 'primary' : ''}" data-act="setDest" data-p='${J({ id: e.id })}'>${dest === e.id ? '✔ ' : ''}${esc(L('Destino'))}</button>`}</div>`;
       }).join('')}</div>`;
   } else body = tradeZone();
   let foot = '';
@@ -754,15 +771,26 @@ function endScreen() {
     ${e.ok && e.note ? `<div class="alert good">${esc(L('A jornada terminou em Pontes-01b:'))} ${esc(T(e.note))}</div>` : ''}
     <p class="big">${e.ok ? (e.colony && !e.note ? esc(L(K('Em ' + e.site + ', a base cresceu, a Terra recebeu os dados e três naves trouxeram os primeiros colonos. A humanidade tem um novo começo — que custou caro.', 'At ' + e.site + ' the base grew, Earth received the data and three ships brought the first colonists. Humanity has a new beginning — and it came at a high cost.', 'En ' + e.site + ' la base creció, la Tierra recibió los datos y tres naves trajeron a los primeros colonos. La humanidad tiene un nuevo comienzo, que costó caro.'))) : `A expedição pousou no ${esc(e.site)}. A humanidade tem um novo começo — que custou caro.`) : esc(e.reason)}</p>
     ${endImpact(e.ok)}
-    ${lessonReport()}
     ${retryBlock()}
-    ${e.ok && e.colony && S.colony ? `<div class="kv"><span>${esc(L('População final'))}</span><b>${colonyPop()}</b><span>${esc(L('Dias na colônia'))}</span><b>${S.colony.day}</b><span>${esc(L('Construções'))}</span><b>${S.colony.built}</b><span>${esc(L('Pacotes de dados enviados à Terra'))}</span><b>${S.colony.txCount}</b><span>${esc(L('Exoplanetas visitados por engano'))}</span><b>${(S.explore && S.explore.wrong) || 0}</b></div>` : ''}
+    <div class="homage">🇧🇷 ${esc(L(K('Em homenagem a Marcos Pontes, o primeiro astronauta brasileiro, que em 30 de março de 2006 partiu para a Estação Espacial Internacional na Missão Centenário.', 'In tribute to Marcos Pontes, the first Brazilian astronaut, who left for the International Space Station on March 30, 2006, on the Centenary Mission.', 'En homenaje a Marcos Pontes, el primer astronauta brasileño, que el 30 de marzo de 2006 partió hacia la Estación Espacial Internacional en la Misión Centenario.')))}</div>
+    <div class="row"><button class="btn" data-ui="saveReport">💾 ${esc(L(K('Salvar relatório completo', 'Save full report', 'Guardar informe completo')))}</button></div>
+    <div class="row"><button class="btn ${S.fail ? '' : 'primary'}" data-ui="journey">Jogar novamente</button><button class="btn" data-ui="saves">📂 ${esc(L(K('Jogos salvos', 'Saved games', 'Partidas guardadas')))}</button><button class="btn" data-ui="shop">✦ Loja (${Save.data.credits})</button><button class="btn" data-ui="quit">Título</button></div></div>`;
+}
+
+// relatório completo (números, perdas, desafios e o que foi aprendido): vai para um arquivo
+function endDetails() {
+  const e = S.ending || { ok: false, reason: S.fail };
+  const fl = S.flowsTotal;
+  const spent = k => Math.abs(Object.values(fl[k] || {}).filter(v => v < 0).reduce((a, b) => a + b, 0));
+  const fd = S.food;
+  const humorAvg = alive().length ? alive().reduce((s, c) => s + c.humor, 0) / alive().length : 0;
+  return `${e.ok && e.colony && S.colony ? `<div class="kv"><span>${esc(L('População final'))}</span><b>${colonyPop()}</b><span>${esc(L('Dias na colônia'))}</span><b>${S.colony.day}</b><span>${esc(L('Construções'))}</span><b>${S.colony.built}</b><span>${esc(L('Pacotes de dados enviados à Terra'))}</span><b>${S.colony.txCount}</b><span>${esc(L('Exoplanetas visitados por engano'))}</span><b>${(S.explore && S.explore.wrong) || 0}</b></div>` : ''}
     <div class="kv"><span>Dias de viagem</span><b>${S.day}</b><span>Tripulantes vivos</span><b>${alive().length}/7</b><span>Pontos</span><b>${S.points}</b><span>Energia gasta</span><b>${fmt(spent('energia'), 0)} kWh</b><span>Combustível gasto</span><b>${fmt(spent('combustivel'), 0)} kg</b><span>Água consumida</span><b>${fmt(spent('agua'), 0)} L</b><span>Oxigênio respirado</span><b>${fmt(spent('oxigenio'), 0)} kg</b>
       <span>Comida produzida / desperdiçada</span><b>${fmt(fd.produced, 1)} / ${fmt(fd.wasted, 1)} kg</b><span>kWh e litros por kg de comida</span><b>${fd.produced > 0 ? fmt(S.stats.kwhFood / fd.produced, 1) + ' kWh · ' + fmt(S.stats.waterFood / fd.produced, 1) + ' L' : '—'}</b><span>Receitas descobertas</span><b>${fd.recipes.length}/${RECIPES.length}</b><span>Dias de mesa completa</span><b>${fd.mesaDays}</b><span>Humor médio</span><b>${fmt(humorAvg, 0)}</b>
       <span>${esc(L('Dose média de radiação'))}</span><b>${fmt(typeof avgDose === 'function' ? avgDose() : 0, 0)} mSv</b><span>Custo da regulação térmica</span><b>${fmt(S.stats.thermalKwh, 1)} kWh · ${fmt(S.stats.thermalFuel, 0)} kg</b></div>
     ${S.dead.length ? `<h4>Perdas</h4><p>${S.dead.map(d => `${esc(d.role)} ${esc(d.name)} (dia ${d.day}, ${esc(d.cause)})`).join('<br>')}</p>` : ''}
     <h4>Desafios</h4><p>${S.stats.events.map(x => `${EVENT_INFO[x.type].icon} ${EVENT_INFO[x.type].title}: <b class="${x.ok ? 'green' : 'red'}">${x.grade}</b>`).join('<br>') || '—'}</p>
-    <div class="row"><button class="btn ${S.fail ? '' : 'primary'}" data-ui="journey">Jogar novamente</button><button class="btn" data-ui="saves">📂 ${esc(L(K('Jogos salvos', 'Saved games', 'Partidas guardadas')))}</button><button class="btn" data-ui="shop">✦ Loja (${Save.data.credits})</button><button class="btn" data-ui="quit">Título</button></div></div>`;
+    ${lessonReport()}`;
 }
 
 // =============== RENDERIZAÇÃO ===============
@@ -818,7 +846,7 @@ function renderUI() {
   document.getElementById('side').className = S && S.event && S.event.type === 'termico' && S.event.phase === 'run' ? 'wide' : '';
   // toast
   const tt = S && S.toast;
-  const th = tt ? `<div class="toast ${tt.kind}">${esc(L(tt.text))}</div>` : '';
+  const th = tt ? `<div class="toast ${tt.kind}">${esc(L(tt.text))}${tt.tip ? '<br>💡 ' + esc(L(tt.tip)) : ''}</div>` : '';
   setHTML('toast', th);
   if (tt && U.lastToast !== tt.id) { U.lastToast = tt.id; if (tt.kind === 'bad') Sfx.bad(); else if (tt.kind === 'good') Sfx.ok(); }
   if (S && S.narration && U.lastNarr !== S.narration.id) { U.lastNarr = S.narration.id; Narrator.say(L(S.narration.text)); }
@@ -826,9 +854,29 @@ function renderUI() {
 
 // =============== HANDLERS ===============
 const UIH = {};
+UIH.saveReport = () => {
+  if (!S) return;
+  const e = S.ending || { ok: false, reason: S.fail };
+  const title = e.ok ? 'Pontes01 — Relatório da jornada' : 'Pontes01 — Relatório da missão';
+  const date = new Date();
+  const body = I18n.dom(`<h1>${esc(L(title))}</h1><p>${esc(date.toLocaleString())} · ${esc(L(S.journey === 'curta' ? 'Jornada Curta' : 'Jornada Completa'))}</p>
+    <h2>${e.ok ? esc(L('Resultado')) + ': ✔' : esc(L('Resultado')) + ': ✖ ' + esc(T(e.reason || ''))}</h2>${e.note ? `<p>${esc(T(e.note))}</p>` : ''}${endDetails()}`);
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>${esc(L(title))}</title><style>body{font-family:system-ui,sans-serif;max-width:760px;margin:24px auto;padding:0 16px;background:#0b1026;color:#e8ecf6}.kv{display:grid;grid-template-columns:1fr auto;gap:4px 16px;margin:12px 0}.green{color:#46e08a}.red{color:#ff6a6a}h4{margin-top:18px}</style></head><body>${body}</body></html>`;
+  try {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+    a.download = 'pontes01-relatorio-' + date.toISOString().slice(0, 10) + '.html';
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    toastLocal(K('Relatório salvo.', 'Report saved.', 'Informe guardado.'));
+  } catch (er) { toastLocal(K('Não foi possível salvar o relatório.', 'Could not save the report.', 'No se pudo guardar el informe.')); }
+};
 UIH.voiceTest = () => { Narrator.voice = null; Narrator.say('Olá, Comandante. Esta é a voz da missão Pontes-01b.'); };
 UIH.hudFull = () => { U.hudFull = !U.hudFull; };
-UIH.playMenu = () => { U.playMenu = !U.playMenu; };
+UIH.playMenu = () => {
+  // primeira vez: vai direto à jornada (curta) e ao passo a passo, sem escolher opções
+  if (!Save.data.firstPlayed && !Save.data.runs && !GameSave.list().length && !U.playMenu) { Save.data.firstPlayed = true; Save.write(); U.playMenu = false; return UIH.startGame('curta'); }
+  U.playMenu = !U.playMenu;
+};
 UIH.title = () => { U.playMenu = false; U.screen = 'title'; Music.play('intro'); };
 UIH.journey = () => { U.screen = 'journey'; S = null; };
 UIH.history = () => { U.screen = 'history'; };
@@ -898,7 +946,7 @@ UIH.introSkip = () => {
   U.mintro = null; U.howto = null; S.scene = 'earth'; cityInit();
 };
 UIH.comms2 = () => { U.comms = 2; Narrator.say(F('comms.next')); };
-UIH.toSetup = () => { S.earthBonus = cityBonus(); S.scene = 'setup'; U.setupStep = 0; U.setupDirty = true; Music.play('fase'); };
+UIH.toSetup = () => { S.earthBonus = cityBoxes(); S.toast = null; S.scene = 'setup'; U.setupStep = 0; U.setupDirty = true; Music.play('fase'); };
 UIH.setStep = i => { U.setupStep = +i; U.setupDirty = true; };
 UIH.setNext = () => { U.setupStep = Math.min(SETUP_STEPS.length - 1, U.setupStep + 1); U.setupDirty = true; };
 UIH.setPrev = () => { U.setupStep = Math.max(0, U.setupStep - 1); U.setupDirty = true; };
@@ -964,7 +1012,8 @@ function bindUI() {
   };
   layer.addEventListener('pointerdown', e => {
     if (e.button !== 0) return;
-    if (e.target.closest('input,select,textarea,details,summary,label')) return;
+    if (e.target.closest('input,select,textarea,summary,label')) return;
+    if (e.target.closest('details') && !e.target.closest('[data-ui],[data-act]')) return; // botões dentro de seções recolhíveis funcionam
     if (e.pointerType === 'mouse') return handle(e);
     const t = e.target.closest('[data-ui],[data-act]');
     if (!t || t.disabled) { tap = null; return; }

@@ -200,9 +200,9 @@ function drawEarth(dt, player) {
     if (p.type === 'car') { cx.fillStyle = p.c; cx.fillRect(x - 16, GROUND - 10, 32, 7); cx.fillRect(x - 9, GROUND - 16, 18, 6); cx.fillStyle = '#1a1a22'; cx.fillRect(x - 7, GROUND - 15, 6, 4); cx.fillRect(x + 1, GROUND - 15, 6, 4); cx.fillStyle = '#111'; cx.fillRect(x - 12, GROUND - 4, 6, 4); cx.fillRect(x + 6, GROUND - 4, 6, 4); cx.fillStyle = '#7a4a2a'; cx.fillRect(x + 4, GROUND - 9, 6, 3); }
     if (p.type === 'tree') { cx.fillStyle = '#2a1e14'; cx.fillRect(x, GROUND - 30, 3, 30); cx.fillRect(x - 6, GROUND - 26, 6, 2); cx.fillRect(x + 3, GROUND - 22, 7, 2); cx.fillRect(x - 3, GROUND - 32, 2, 4); }
   }
-  drawCity(dt, cam);
-  // placas na frente dos prédios (desenhadas depois deles)
+  // letreiros: mais altos que os prédios e desenhados ANTES deles (ficam atrás dos prédios e dos nomes das pessoas)
   for (const p of L.props) if (p.type === 'sign') drawStreetSign(p, Math.round(p.x - cam));
+  drawCity(dt, cam);
   // poeira e fuligem no ar + neblina tóxica
   for (const d of L.dust) { d.x -= d.v * dt; d.y += Math.sin(R.t + d.v) * dt * 4; if (d.x < -2) { d.x = VW + 2; } cx.fillStyle = 'rgba(70,58,40,0.55)'; cx.fillRect(Math.round(d.x), Math.round(d.y), 1, 1); }
   const haze = cx.createLinearGradient(0, 120, 0, VH); haze.addColorStop(0, 'rgba(140,110,60,0)'); haze.addColorStop(1, 'rgba(120,96,56,0.28)'); cx.fillStyle = haze; cx.fillRect(0, 120, VW, VH - 120);
@@ -228,7 +228,7 @@ function drawStreetSign(p, x) {
   const lines = signLines(p.t);
   cx.font = '8px "Silkscreen", monospace';
   const w = Math.ceil(Math.max(...lines.map(l => cx.measureText(l).width))) + 10, h = lines.length * 9 + 6;
-  const top = GROUND - 64 - h; // placa alta: fica acima das pessoas
+  const top = GROUND - 104 - h; // acima do prédio mais alto (84 px)
   cx.fillStyle = '#1a1612'; cx.fillRect(x - 1, top + h, 3, GROUND - top - h);           // poste
   cx.fillStyle = '#ffb03a'; cx.fillRect(x - w / 2 - 2, top - 2, w + 4, h + 4);             // moldura
   cx.fillStyle = '#16120e'; cx.fillRect(x - w / 2, top, w, h);

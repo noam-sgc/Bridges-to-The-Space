@@ -148,6 +148,11 @@ function drawModeIntro(dt) {
   if (!m) return;
   const sl = modeSlides(); const cur = sl[m.i]; const used = sl.map(s => s.node === 'crew' ? 'viagem' : s.node);
   m.t += dt;
+  // passo a passo automático: depois de escrever e falar o texto, avança sozinho (o botão Próximo continua valendo)
+  if (cur) {
+    const len = String(L(cur.t)).length, speaking = 'speechSynthesis' in window && speechSynthesis.speaking && Save.data.settings.narration;
+    if (m.t > len / 50 + 1.5 && m.t > Math.max(4, len / 17) && !speaking) { UIH.mNext(); return; }
+  }
   // rota tracejada
   cx.setLineDash([3, 4]); cx.strokeStyle = 'rgba(143,163,214,0.55)'; cx.beginPath();
   MAP_ORDER.forEach((k, j) => { const [x, y] = MAP_NODES[k]; j ? cx.lineTo(x, y) : cx.moveTo(x, y); }); cx.stroke(); cx.setLineDash([]);

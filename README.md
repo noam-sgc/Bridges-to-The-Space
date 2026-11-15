@@ -71,3 +71,13 @@ Sprites derivados de `.claude/Astronauta*.png`; trilha sonora com os MP3 da past
 - **Espaço** agora também fecha o painel de uma estação (como o E); as seções "Mais opções" (cozinha e outras) permanecem abertas quando a tela atualiza.
 - **Pouso**: nunca encerra o jogo antes da colônia. Sem combustível suficiente é um pouso de emergência (dano no casco e um ferido); local pouco investigado começa a colônia com menos energia e água.
 - **Colônia sempre aparece**: em órbita, o botão "🛬 Descer para a colônia agora" leva direto ao pouso (a colônia começa mais difícil se faltou investigar). Se algo encerraria a jornada ainda na órbita (ex.: a órbita baixa decai) e a tripulação tem 3 ou mais vivos com o Comandante, a nave faz um **pouso forçado** e a colônia começa.
+
+## Barra rápida, caixinhas da cidade e outras melhorias
+- **Barra rápida** (lado esquerdo, em todo o jogo): 🔊 áudio (música e voz), 🔔 efeitos, ⚙ configurações e ◀ **voltar à fase anterior** (toque duas vezes para confirmar).
+- **Caixinha de sugestões** em cada prédio da cidade: +1 ponto de verba para montar a nave e uma dica do que levar (o item sugerido aparece com 💡 na montagem). Substitui os +8 créditos; os avisos somem sozinhos.
+- **Letreiros** da cidade ficam acima dos prédios e atrás deles e dos nomes das pessoas.
+- **Especialidade do Comandante**: escolha na nave recomendada ou na aba Missão de "Montar a minha".
+- **Passo a passo automático** na introdução; na primeira vez, JOGAR já começa a Jornada Curta.
+- **Escolha de planeta**: depois de um erro, os outros planetas ficam travados e Pontes-01b fica destacado com uma seta; sem clique em 5 s, a nave segue sozinha para a escolha do local de pouso.
+- **Regulação Térmica**: depois de falhar, o painel mostra o passo a passo de cada fase.
+- **Relatório final** enxuto (mensagem, falas, recomeçar da missão e homenagem a Marcos Pontes) com o botão **Salvar relatório completo** (arquivo HTML com números, perdas, desafios e o que foi aprendido).

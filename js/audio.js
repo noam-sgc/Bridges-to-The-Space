@@ -5,7 +5,7 @@
 
 const Music = {
   cur: null, curKey: null, list: [], idx: 0, unlocked: false, fadeTimer: null,
-  vol() { return Save.data.settings.music; },
+  vol() { return Save.data.settings.mute ? 0 : Save.data.settings.music; },
   play(key) {
     if (key === this.curKey) return;
     this.curKey = key;
@@ -47,7 +47,7 @@ const Sfx = {
   ensure() { if (!this.ctx) { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { /* sem áudio */ } } return this.ctx; },
   tone(freq, dur, type = 'square', vol = 0.08, slide = 0, delay = 0) {
     const c = this.ensure(); if (!c) return;
-    const v = vol * Save.data.settings.sfx;
+    const v = vol * (Save.data.settings.sfxOff ? 0 : Save.data.settings.sfx);
     if (v <= 0) return;
     const t0 = c.currentTime + delay;
     const o = c.createOscillator(), g = c.createGain();
@@ -58,7 +58,7 @@ const Sfx = {
   },
   noise(dur, vol = 0.06) {
     const c = this.ensure(); if (!c) return;
-    const v = vol * Save.data.settings.sfx; if (v <= 0) return;
+    const v = vol * (Save.data.settings.sfxOff ? 0 : Save.data.settings.sfx); if (v <= 0) return;
     const buf = c.createBuffer(1, c.sampleRate * dur, c.sampleRate);
     const d = buf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
     const s = c.createBufferSource(), g = c.createGain(); g.gain.value = v;
@@ -101,7 +101,7 @@ const Narrator = {
   // fala depois do que estiver falando agora (sem cortar a narração)
   later(text) { setTimeout(() => { if (this.speaking || ('speechSynthesis' in window && speechSynthesis.speaking)) this._q = text; else this.say(text); }, 700); },
   say(text, opts) {
-    if (!Save.data.settings.narration || !('speechSynthesis' in window)) return;
+    if (!Save.data.settings.narration || Save.data.settings.mute || !('speechSynthesis' in window)) return;
     try {
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(L(text));

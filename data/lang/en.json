@@ -2050,7 +2050,10 @@
   "Assistência gravitacional: −15% de combustível, +2 dias": "Gravity assist: −15% fuel, +2 days",
   "Cruzeiro econômico: −30% de combustível, mais lento": "Economy cruise: −30% fuel, slower",
   "Manter a rota atual (moral −3)": "Keep the current route (morale −3)",
-  "Leve chiado": "Slight wheezing"
+  "Leve chiado": "Slight wheezing",
+  "Ir para Pontes-01b": "Go to Pontes-01b",
+  "Rota automática para Pontes-01b. Escolha agora o local de pouso da colônia.": "Automatic route to Pontes-01b. Now choose the colony landing site.",
+  "Resultado": "Result"
  },
  "patterns": [
   [

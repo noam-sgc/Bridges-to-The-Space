@@ -108,7 +108,7 @@ function update(dt) {
   } else if (host && ['station', 'detour', 'planet', 'migration'].includes(S.scene)) {
     tickCrew(dt);
     if (S.toast) { S.toast.t -= dt; if (S.toast.t <= 0) S.toast = null; }
-  }
+  } else if (S.toast && !['ship', 'colony'].includes(S.scene)) { S.toast.t -= dt; if (S.toast.t <= 0) S.toast = null; } // cidade, montagem, lançamento: avisos somem sozinhos
   if (S.scene === 'ship' && S.event && S.event.puzzle && S.event.puzzle.kind === 'pilot') {
     const up = keys.ArrowUp || keys.KeyW, down = keys.ArrowDown || keys.KeyS;
     if (up || down) { U.pilotAcc = (U.pilotAcc || 0) + dt; if (U.pilotAcc > 0.05) { U.pilotAcc = 0; act('puzzle', { op: 'move', d: up ? -0.035 : 0.035 }); } }
