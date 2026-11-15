@@ -41,7 +41,13 @@ function setHTML(id, html) {
   U.cache[id] = html;
   const el = document.getElementById(id);
   if (el) {
+    // guarda a rolagem dos painéis: o conteúdo é trocado a cada atualização e o scroll voltaria ao topo
+    const SCR = '.panel, .scroll, .evp, .stage-panel, .modal-bg, .side, .report-list, .evlog';
+    const keep = []; el.querySelectorAll(SCR).forEach((n, i) => { if (n.scrollTop > 0) keep.push([i, n.className, n.scrollTop]); });
+    const top0 = el.scrollTop;
     el.innerHTML = pixelEmoji(I18n.dom(html));
+    if (keep.length) { const list = el.querySelectorAll(SCR); for (const [i, cls, t] of keep) { const n = list[i] && list[i].className === cls ? list[i] : null; if (n) n.scrollTop = t; } }
+    if (top0) el.scrollTop = top0;
     const od = U.openDet; // mantém abertas as seções "Mais opções" etc. entre atualizações
     if (od) el.querySelectorAll('details').forEach(d => { const s = d.querySelector('summary'); if (s && od[s.textContent.trim()]) d.open = true; });
   }
@@ -686,7 +692,7 @@ function stationScreen() {
       <div class="exos">${EXOPLANETS.map(e => {
         const an = S.explore.analyzed.includes(e.id); const vis = S.explore.visited && S.explore.visited[e.id];
         const dist = typeof e.dist === 'number' ? fmt(e.dist, 1) + ' ' + L('anos-luz') : L('na rota');
-        return `<div class="exo ${dest === e.id ? 'on' : ''} ${vis ? 'visited' : ''} ${S.explore.wrongOnce ? (e.id === 'pontes' ? 'guide' : 'locked') : ''}"><b>${e.name}</b>${vis ? ` <em class="red">✖ ${esc(L('visitado: inabitável'))}</em>` : ''}${an || vis ? `<div class="kv small"><span>${esc(L('Distância'))}</span><b>${dist}</b><span>${esc(L('Raio/massa'))}</span><b>${e.radius}</b><span>${esc(L('Gravidade'))}</span><b>${EXO_GRAV[e.id] ? (I18n.lang === 'en' ? EXO_GRAV[e.id].replace(',', '.') : EXO_GRAV[e.id]) : '—'}</b><span>${esc(L('Temp. de equilíbrio'))}</span><b>${e.teq} K</b><span>${esc(L('Ano'))}</span><b>${e.period} ${esc(L('dias'))}</b><span>${esc(L('Distância orbital'))}</span><b>${e.sma} UA</b><span>${esc(L('Descoberta'))}</span><b>${esc(T(e.disc))}</b><span>${esc(L('Estrela'))}</span><b>${esc(T(e.star))}</b><span>ESI</span><b>${e.esi}</b></div><p class="small muted">${esc(T(e.issues))}</p>` : `<button class="btn tiny" data-act="analyzeExo" data-p='${J({ id: e.id })}'>${esc(L('Analisar'))}</button>`}
+        return `<div class="exo ${dest === e.id ? 'on' : ''} ${vis ? 'visited' : ''} ${S.explore.wrongOnce ? (e.id === 'pontes' ? 'guide' : 'locked') : ''}">${planetImg(e.id, 96, 'thumb')}<b>${e.name}</b>${vis ? ` <em class="red">✖ ${esc(L('visitado: inabitável'))}</em>` : ''}${an || vis ? `<div class="kv small"><span>${esc(L('Distância'))}</span><b>${dist}</b><span>${esc(L('Raio/massa'))}</span><b>${I18n.lang === 'en' ? e.radius.replace(/(\d),(\d)/g, '$1.$2').replace('massa mín.', 'min. mass') : e.radius}</b><span>${esc(L('Gravidade'))}</span><b>${EXO_GRAV[e.id] ? (I18n.lang === 'en' ? EXO_GRAV[e.id].replace(',', '.') : EXO_GRAV[e.id]) : '—'}</b><span>${esc(L('Temp. de equilíbrio'))}</span><b>${e.teq} K</b><span>${esc(L('Ano'))}</span><b>${e.period} ${esc(L('dias'))}</b><span>${esc(L('Distância orbital'))}</span><b>${e.sma} ${I18n.lang === 'en' ? 'AU' : 'UA'}</b><span>${esc(L('Descoberta'))}</span><b>${esc(T(e.disc))}</b><span>${esc(L('Estrela'))}</span><b>${esc(T(e.star))}</b><span>ESI</span><b>${e.esi}</b></div><p class="small muted">${esc(T(e.issues))}</p>` : `<button class="btn tiny" data-act="analyzeExo" data-p='${J({ id: e.id })}'>${esc(L('Analisar'))}</button>`}
         ${S.explore.wrongOnce
           ? (e.id === 'pontes' ? `${S.explore.guideAt ? '<div class="bigarrow">⬇</div>' : ''}<button class="btn primary ${S.explore.guideAt ? 'must' : ''}" data-act="goPontes">🚀 ${esc(L('Ir para Pontes-01b'))}</button>` : '')
           : `<button class="btn tiny ${dest === e.id ? 'primary' : ''}" data-act="setDest" data-p='${J({ id: e.id })}'>${dest === e.id ? '✔ ' : ''}${esc(L('Destino'))}</button>`}</div>`;
@@ -708,7 +714,7 @@ function detourScreen() {
   const kv = (a, b) => `<span>${esc(L(a))}</span><b>${b}</b>`;
   return `<div class="stage-panel"><h2>${esc(L('DESVIO DE ROTA: '))}${exo.name}</h2>${miniRes()}<div class="scroll">
     <div class="alert bad">⚠ ${esc(L('Este não é Pontes-01b. A viagem custou combustível, oxigênio, comida e dias — e a moral caiu.'))}</div>
-    <h4>${esc(L('O que a tripulação encontrou'))}</h4><p>${esc(L(exo.trip.outcome))}</p>
+    <div class="phero">${planetImg(exo.id, 220, 'hero')}<div><h4>${esc(L('O que a tripulação encontrou'))}</h4><p>${esc(L(exo.trip.outcome))}</p></div></div>
     <h4>${esc(L('Dados'))}</h4>
     <div class="kv small">${kv('Distância', typeof exo.dist === 'number' ? fmt(exo.dist, 1) + ' ' + L('anos-luz') : '—')}${kv('Raio/massa', exo.radius)}${kv('Temp. de equilíbrio', exo.teq + ' K')}${kv('Ano', exo.period + ' ' + L('dias'))}${kv('Estrela', esc(T(exo.star)))}${kv('Descoberta', esc(T(exo.disc)))}${kv('ESI', exo.esi)}</div>
     <p class="green">+${d.dados} GB ${esc(L('de dados científicos coletados.'))}</p>
@@ -727,7 +733,7 @@ function planetScreen() {
   const ch = allC ? P.challenges.map(c => { const d = CHALLENGES.find(x => x.id === c.id); return `<div class="pres ${c.ok ? '' : 'bad'}">${c.ok ? '✔' : '✖'} <b>${esc(T(d.name))}</b>${c.ok ? '' : ` <span>${esc(T(c.txt))}</span>`}</div>`; }).join('')
     : `<button class="btn" data-act="prepCrew" ${nA < KEY_ANALYSES.length ? 'disabled' : ''}>🧑‍🚀 ${esc(L('Preparar a tripulação'))}</button>`;
   return `<div class="stage-panel"><h2>${esc(L('O NOVO MUNDO: PONTES-01b'))}</h2>${miniRes()}<div class="scroll">
-    <p class="lead">${esc(L('Antes de descer, descubra se o planeta é seguro e prepare a tripulação.'))}</p>
+    <div class="phero">${planetImg('pontes', 220, 'hero')}<p class="lead">${esc(L('Antes de descer, descubra se o planeta é seguro e prepare a tripulação.'))}</p></div>
     ${step(1, nA >= KEY_ANALYSES.length, 'Analise o planeta', `${nA}/${KEY_ANALYSES.length} · ` + L('cada análise gasta dados e energia'), `<div class="pbtns">${an}</div>`)}
     ${step(2, allC, 'Prepare a tripulação', 'aclimatação ao ar, primeira plantação e abrigo na superfície', `<div class="pbtns">${ch}</div>`)}
     ${step(3, false, 'Escolha onde pousar', 'o computador indica o melhor lugar', `<div class="pbtns"><button class="btn primary" data-act="toMigration" ${allC ? '' : 'disabled'}>🛬 ${esc(L('Escolher o local de pouso'))} ▶</button></div>`)}

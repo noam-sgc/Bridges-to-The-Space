@@ -701,3 +701,10 @@ img.pxe { width: 1.15em; height: 1.15em; image-rendering: pixelated; image-rende
 .thguide ol{margin:3px 0 3px 1.1em;padding:0}.thguide li{opacity:.6;margin:2px 0}.thguide li.now{opacity:1;color:#ffd34c;font-weight:bold}.thguide li.done{opacity:.45;text-decoration:line-through}
 .homage{margin:10px auto;padding:6px 10px;border:1px solid rgba(70,224,138,.5);border-radius:6px;max-width:560px;font-size:.9em;color:#bff5d4}
 .qorigin{margin:6px 0;text-align:center}.qorigin .mchips{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin:4px 0}
+/* fotos dos planetas */
+.ppic { image-rendering: auto; display: block; border-radius: 6px; background: #000; }
+.exo .ppic.thumb { width: 72px; height: 72px; float: left; margin: 0 8px 4px 0; border: 2px solid #22357a; }
+.exo::after { content: ''; display: block; clear: both; }
+.phero { display: flex; gap: 12px; align-items: center; margin: 6px 0; }
+.phero .ppic.hero { width: 150px; height: 150px; flex: none; border: 2px solid #22357a; box-shadow: 0 0 18px rgba(80, 140, 255, .25); }
+.exo .kv { clear: both; padding-top: 4px; } .exo > b { font-size: 1.15em; }
