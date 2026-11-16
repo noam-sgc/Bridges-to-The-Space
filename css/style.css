@@ -647,9 +647,6 @@ img.pxe { width: 1.15em; height: 1.15em; image-rendering: pixelated; image-rende
 .fbtn .flow { width: 70%; height: 28px; background: #1a2350; display: flex; align-items: flex-end; }
 .fbtn .flow i { display: block; width: 100%; background: #7dd8ff; }
 .fbtn.ok { opacity: .5; }
-.map3 .tile { font-size: 1.8em; min-height: 1.8em; }
-.map3 .tile.bent { border-color: #ff9a3c; background: rgba(255, 154, 60, .18); }
-.map3 .tile.okt { border-color: #3fbf7f; color: #7dffb0; }
 .bands { display: flex; gap: 2px; height: 46px; align-items: stretch; margin: 4px 0; }
 .band { flex: 1; display: flex; align-items: flex-end; padding: 0; background: #0b1440; border: 2px solid #22357a; cursor: pointer; }
 .band i { display: block; width: 100%; background: #4fa3ff; }
@@ -712,3 +709,6 @@ img.pxe { width: 1.15em; height: 1.15em; image-rendering: pixelated; image-rende
 .sharebox{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;margin:6px 0;font-size:.85em}
 .sharebox input{font-family:var(--pix);width:auto;min-width:90px;background:#0b1238;color:var(--yellow);border:1px solid #22357a;padding:2px 6px;user-select:all}
 .sharebox input[readonly]{cursor:text}
+/* porcentagem do caminho em cima da linha do tempo */
+.track .line { position: relative; }
+.track .line .pct { position: absolute; bottom: 100%; transform: translateX(-50%); margin-bottom: 2px; font-style: normal; font-size: .8em; color: #ffe98a; text-shadow: 1px 1px 0 #000; white-space: nowrap; pointer-events: none; }

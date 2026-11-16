@@ -80,7 +80,7 @@ function routineNew() {
   const size = S.day <= 1 ? 0 : S.journey === 'curta' ? 1 : Math.floor(Math.random() * 3); // dia 1: só o tutorial
   S.routine = { day: S.day, items: ids.slice(0, size).map(id => ({ id, done: false })), bonus: false };
   // o ⏩ para quando chega tarefa nova, como nos desafios
-  if (size && S.fast) { S.fast = 0; toast('⏸ Nova tarefa da rotina: tempo normal.', 'info'); }
+  if (size && S.fast) { const auto = S.autoFast; S.fast = 0; S.autoFast = false; if (!auto) toast('⏸ Nova tarefa da rotina: tempo normal.', 'info'); }
 }
 function routineGet() {
   if (!S || S.scene !== 'ship') return null;
@@ -139,7 +139,7 @@ function routineBox() {
     ${rows.map(x => `<div class="${x.done ? 'done' : x === cur ? 'cur' : ''}">${x.done ? '☑' : x === cur ? '▶' : '☐'} ${x.icon} ${esc(L(x.t))}${x === cur && x.how ? `<div class="how">${esc(L(x.how))}</div>` : ''}</div>`).join('')}
     ${!ev && r.hadEvent && !r.bonus && r.items.length ? `<div class="muted small">⏸ ${esc(L('Hoje teve missão: o que faltar passa para amanhã.'))}</div>` : ''}
     ${!ev && !r.bonus && !r.hadEvent && S.tutorial >= 4 ? `<div class="muted small">⏳ ${Math.max(0, Math.floor(24 - S.dayT / S.dayLen * 24))}h · ${esc(L('o que não for feito hoje tem consequência'))}</div>` : ''}
-    ${!ev && !r.items.length ? `<div class="muted small">☕ ${esc(L('Nenhuma tarefa hoje. Acelere o tempo (Shift+S) se quiser.'))}</div>` : ''}
-    ${!ev && r.bonus ? `<div class="green small">✔ ${esc(L('Rotina completa. Acelere o tempo (Shift+S) até o próximo desafio.'))}</div>` : ''}</div>`;
+    ${!ev && !r.items.length ? `<div class="muted small">☕ ${esc(L('Nenhuma tarefa hoje.'))}</div>` : ''}
+    ${!ev && r.bonus ? `<div class="green small">✔ ${esc(L('Rotina completa.'))}</div>` : ''}</div>`;
 }
 const TUT_HOW = { ponte: 'Suba a escada e vá até a Ponte, à direita. Aperte E no painel.', cozinha: 'Desça até a Cozinha e aperte E para montar o cardápio.' };

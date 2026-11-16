@@ -398,7 +398,7 @@ function hudBottom() {
   }
   const p = S.progress;
   return call + `<div class="hud-bottom">
-    <div class="track"><span class="lbl">TERRA</span><div class="line"><i style="width:${p * 100}%"></i><em class="mk st" style="left:50%">◆</em><em class="ship" style="left:${p * 100}%">▶</em></div><span class="lbl cyan">PONTES-01b</span></div>
+    <div class="track"><span class="lbl">TERRA</span><div class="line"><i style="width:${p * 100}%"></i><em class="mk st" style="left:50%">◆</em><em class="ship" style="left:${p * 100}%">▶</em><em class="pct" style="left:${p * 100}%">${Math.round(p * 100)}%</em></div><span class="lbl cyan">PONTES-01b</span></div>
     ${prompt ? `<button class="prompt big-prompt" data-ui="interactNow" ${m && m.task ? 'disabled' : ''}>${prompt}</button>` : '<div class="prompt"></div>'}
     <div class="btns"><button class="btn small" data-ui="panel" data-arg="report">[R] Relatório</button><button class="btn small" data-ui="panel" data-arg="crew">[T] Tripulação</button><button class="btn small" data-ui="panel" data-arg="fund">[F] Fundo ${S.fund}</button><button class="btn small" data-ui="panel" data-arg="menu">☰</button></div>
   </div>`;
@@ -465,7 +465,7 @@ function puzzleHTML(ev) {
     }).join('')}</div>${pz.hint ? solBox(L('Troque o filtro') + ' F' + (pz.bad + 1)) : ''}</div>`;
   }
   if (pz.kind === 'mapa') {
-    return `<div class="puzzle vis"><h4>⭐ ${esc(L('Mapa estelar'))}</h4><p class="pzhow">👆 ${esc(L('Clique nas setas tortas para apontar para cima ↑'))}</p><div class="map3">${pz.tiles.map((t, i) => `<button class="tile ${t ? 'bent' : 'okt'}" data-act="puzzle" data-p='${J({ i })}'><span style="display:inline-block;transform:rotate(${t * 90}deg)">↑</span></button>`).join('')}</div>${pz.hint ? solBox(L('Só clique nas setas que não apontam para cima ↑')) : ''}</div>`;
+    return `<div class="puzzle"><h4>Recalibrar mapa estelar</h4><p class="small">Gire os setores até todas as setas apontarem para cima ↑ (para a estrela-guia).</p><div class="map3">${pz.tiles.map((t, i) => `<button class="tile" data-act="puzzle" data-p='${J({ i })}' style="transform:rotate(${t * 90}deg)">↑</button>`).join('')}</div>${pz.hint ? solBox(L('Clique em cada seta até ela apontar para cima ↑')) : ''}</div>`;
   }
   if (pz.kind === 'radio') {
     const msg = RADIO_MESSAGES[pz.msgIdx];

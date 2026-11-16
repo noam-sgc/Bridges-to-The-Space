@@ -2591,7 +2591,9 @@
   "nave": "nave",
   "dados": "datos",
   "Narração: ": "Narración: ",
-  "Sem energia: ": "Sin energía: "
+  "Sem energia: ": "Sin energía: ",
+  "Nenhuma tarefa hoje.": "No hay tareas hoy.",
+  "Rotina completa.": "Rutina completa."
  },
  "patterns": [
   [

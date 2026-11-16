@@ -41,7 +41,7 @@ UIH.fast = () => {
 // avança a simulação em passos de no máximo 0,1 s (estável mesmo a 10x)
 function stepScaled(fn, dt, k) { let left = dt * k; while (left > 1e-6) { const h = Math.min(0.1, left); fn(h); left -= h; } }
 function timeScale() { return S && S.fast && !(S.event && S.event.phase !== 'result') ? S.fast : 1; }
-function toastLocal(k) { if (S) { S.toast = { text: k, kind: 'info', t: 3, id: Math.random() }; } }
+function toastLocal(k) { if (S) { S.toast = { text: k, kind: 'info', t: 3 * Math.max(1, S.fast || 1), id: Math.random() }; } } // dura o mesmo tempo real mesmo acelerado
 
 // ---------- passos por cena ----------
 const KS = (pt, en, es) => K(pt, en, es);
@@ -73,7 +73,7 @@ function assistSteps() {
         ['Defina o cardápio na Cozinha (andar de baixo).', 'cozinha', '🍳', 4],
       ];
       tut.forEach(([t, st, ic, n]) => add(t, S.tutorial >= n, st ? { st } : null, ic));
-      add(KS(`Leve a nave até Pontes-01b (${Math.round(S.progress * 100)}%). Use ⏩ (Shift+S) para acelerar.`, `Take the ship to Pontes-01b (${Math.round(S.progress * 100)}%). Use ⏩ (Shift+S) to speed up.`, `Lleve la nave a Pontes-01b (${Math.round(S.progress * 100)}%). Use ⏩ (Shift+S) para acelerar.`), false, null, '🪐');
+      add(KS(`Leve a nave até Pontes-01b (${Math.round(S.progress * 100)}%).`, `Take the ship to Pontes-01b (${Math.round(S.progress * 100)}%).`, `Lleve la nave a Pontes-01b (${Math.round(S.progress * 100)}%).`), false, null, '🪐');
       break;
     }
     case 'station':

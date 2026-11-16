@@ -179,8 +179,7 @@ function makePuzzle(kind, ev, step) {
     const n = 6; return { kind, n, bad: Math.floor(Math.random() * n), seen: [], swapped: false, flow: Array.from({ length: n }, () => 70 + Math.floor(Math.random() * 30)) };
   }
   if (kind === 'mapa') {
-    // 4 setores tortos; um clique endireita o setor
-    const tiles = Array(9).fill(0); shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8]).slice(0, 4).forEach(i => { tiles[i] = 1 + Math.floor(Math.random() * 3); });
+    const tiles = []; for (let i = 0; i < 9; i++) tiles.push(1 + Math.floor(Math.random() * 3)); // 0 = alinhado
     return { kind, tiles };
   }
   if (kind === 'radio') {
@@ -217,8 +216,8 @@ ACTIONS.puzzle = (p, actor) => {
       }
       break;
     case 'mapa':
-      if (pz.tiles[p.i] === 0) { ev.t -= 2; quickHelp(pz); break; } // já estava certo
-      pz.tiles[p.i] = 0;
+      pz.tiles[p.i] = (pz.tiles[p.i] + 1) % 4; // cada clique gira 90°
+      pz.clicks = (pz.clicks || 0) + 1; if (pz.clicks > 14) quickHelp(pz);
       if (pz.tiles.every(t => t === 0)) { toast('Mapa estelar recalibrado!', 'good'); puzzleDone(ev); }
       break;
     case 'radio':
