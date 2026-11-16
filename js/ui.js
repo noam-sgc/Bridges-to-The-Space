@@ -231,12 +231,18 @@ const shipLabel = n => L(K('Nave-' + n, 'Spaceship ' + n, 'Nave-' + n));
 const arcaJoinLabel = n => K('Entrar na Nave-' + n, 'Join Spaceship ' + n, 'Entrar en la Nave-' + n);
 const roleChips = LB => `<div class="grp"><b>${esc(L(K('Sua função', 'Your role', 'Su función')))}</b><button class="chip ${!LB.role ? 'on' : ''}" data-ui="netRole" data-arg="">${esc(L(K('Qualquer', 'Any', 'Cualquiera')))}</button>${ROLES.map(r => `<button class="chip ${LB.role === r.id ? 'on' : ''}" data-ui="netRole" data-arg="${r.id}">${esc(L(r.short))}</button>`).join('')}</div>`;
 const shipChips = LB => `<div class="grp"><b>${esc(L(K('Escolha sua Nave', 'Choose your Spaceship', 'Elija su Nave')))}</b>${[1, 2, 3, 4].map(n => `<button class="chip ${(LB.ship || 1) === n ? 'on' : ''}" data-ui="netShip" data-arg="${n}">${esc(shipLabel(n))}</button>`).join('')}</div><p class="small muted">${esc(L(arcaHint(LB.ship || 1)))}</p>`;
+// código e link da sala: campos somente leitura (selecionáveis) e botões de copiar
+const roomLink = () => location.origin + location.pathname + '?sala=' + encodeURIComponent(Net.room || '') + (U.lobby && U.lobby.url ? '&srv=' + encodeURIComponent(U.lobby.url) : '');
+const shareBox = () => Net.room ? `<div class="sharebox">
+  <label>${esc(L(K('Código', 'Code', 'Código')))} <input readonly value="${esc(Net.room)}" onfocus="this.select()"></label> <button class="btn tiny" data-ui="netCopy" data-arg="code">📋 ${esc(L(K('Copiar código', 'Copy code', 'Copiar código')))}</button>
+  <label>${esc(L(K('Link', 'Link', 'Enlace')))} <input readonly value="${esc(roomLink())}" onfocus="this.select()"></label> <button class="btn tiny" data-ui="netCopy" data-arg="link">📋 ${esc(L(K('Copiar link', 'Copy link', 'Copiar enlace')))}</button></div>` : '';
 function lobbyScreen() {
   const LB = U.lobby || {};
   if (Net.role === 'host' && Net.room) {
     return `<div class="panel center wide">
       <h2>SALA <span class="code">${esc(Net.room)}</span> · ${esc(shipLabel(Net.mySh || 1))}</h2>
       <p class="small yellow">${esc(L(K('Você é o Comandante da Nave-' + (Net.mySh || 1) + '.', 'You are the Commander of Spaceship ' + (Net.mySh || 1) + '.', 'Usted es el Comandante de la Nave-' + (Net.mySh || 1) + '.')))}</p>
+      ${shareBox()}
       <p class="muted">Passe o código para até 6 amigos. Cada um assume um tripulante; os lugares vazios ficam com bots.</p>
       ${!Net.relay ? `<p class="small cyan">${esc(L(K('Outras Naves: quem entrar com este código escolhendo outra Nave vira o Comandante dela (jornada própria). Até 28 pessoas: 4 Naves × (Comandante + 6).', 'Other Spaceships: whoever joins with this code and picks another Spaceship becomes its Commander (own journey). Up to 28 people: 4 Spaceships × (Commander + 6).', 'Otras Naves: quien entre con este código eligiendo otra Nave se vuelve su Comandante (viaje propio). Hasta 28 personas: 4 Naves × (Comandante + 6).')))}</p>
       ${[1, 2, 3, 4].filter(n => n !== Net.hubShip).map(n => { const a = Net.arcas[n]; return `<div class="alert ${a ? 'good' : 'info'}"><b>${esc(shipLabel(n))}</b> — ${a ? '🎮 ' + esc(a.cmdName || '') + ' · ' + a.members.length + '/6 ' + esc(L(K('tripulantes', 'crew', 'tripulantes'))) : esc(L(K('livre (o 1º que entrar vira Comandante)', 'free (the first to join becomes Commander)', 'libre (el primero en entrar será Comandante)')))}</div>`; }).join('')}` : ''}
@@ -250,7 +256,7 @@ function lobbyScreen() {
     </div>`;
   }
   if (Net.role === 'client') {
-    return `<div class="panel center"><h2>CONECTADO</h2><p>Sala <span class="code">${esc(Net.room || '')}</span>. ${esc(shipLabel(Net.mySh || 1))}${Net.cmdName ? ' · ' + esc(L(K('Comandante: ', 'Commander: ', 'Comandante: '))) + esc(Net.cmdName) : ''}. Você será: <b>${esc(L(Net.myRoleName || '...'))}</b>.</p><p class="muted">Aguardando o Comandante iniciar a jornada e montar a nave...</p>${ROLE_DUTIES[U.me] ? `<p class="small cyan">${esc(L('Sua função:'))} ${esc(L(ROLE_DUTIES[U.me]))}</p><p class="small muted">${esc(L('Quando chamarem a sua função, aparece um aviso 📢: vá até a estação e pressione E. Se não for em 45 s, um bot assume.'))}</p>` : ''}<div class="row"><button class="btn" data-ui="netLeave">◀ Sair</button></div></div>`;
+    return `<div class="panel center"><h2>CONECTADO</h2><p>Sala <span class="code">${esc(Net.room || '')}</span>. ${esc(shipLabel(Net.mySh || 1))}${Net.cmdName ? ' · ' + esc(L(K('Comandante: ', 'Commander: ', 'Comandante: '))) + esc(Net.cmdName) : ''}. Você será: <b>${esc(L(Net.myRoleName || '...'))}</b>.</p><p class="muted">Aguardando o Comandante iniciar a jornada e montar a nave...</p>${shareBox()}${ROLE_DUTIES[U.me] ? `<p class="small cyan">${esc(L('Sua função:'))} ${esc(L(ROLE_DUTIES[U.me]))}</p><p class="small muted">${esc(L('Quando chamarem a sua função, aparece um aviso 📢: vá até a estação e pressione E. Se não for em 45 s, um bot assume.'))}</p>` : ''}<div class="row"><button class="btn" data-ui="netLeave">◀ Sair</button></div></div>`;
   }
   return `<div class="panel center">
     <h2>MULTIPLAYER</h2>
@@ -1002,6 +1008,12 @@ UIH.quitAsk = () => { U.confirmQuit = true; };
 UIH.quit = () => { exitGameFullscreen(); Narrator.stop(); if (Net.role) Net.leave(); S = null; U.screen = 'title'; U.panel = null; Music.play('intro'); };
 UIH.netHost = () => { const el = $('#net-url'); const url = el ? el.value.trim() : ''; U.lobby = { url, ship: (U.lobby && U.lobby.ship) || 1 }; Net.host(url); };
 UIH.netJoin = () => { enterGameFullscreen(); const el = $('#net-url'); const url = el ? el.value.trim() : ''; const code = $('#net-code').value.trim().toUpperCase(); U.lobby = { url, code, ship: (U.lobby && U.lobby.ship) || 1, role: (U.lobby && U.lobby.role) || '' }; Net.join(url, code); };
+function copyText(txt) {
+  const fallback = () => { try { const ta = document.createElement('textarea'); ta.value = txt; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return Promise.resolve(ok); } catch (e) { return Promise.resolve(false); } };
+  if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(txt).then(() => true, fallback);
+  return fallback();
+}
+UIH.netCopy = which => { const txt = which === 'link' ? roomLink() : (Net.room || ''); copyText(txt).then(ok => toastLocal(ok ? K('Copiado! Cole para quem vai entrar.', 'Copied! Paste it for whoever is joining.', '¡Copiado! Pégalo para quien va a entrar.') : K('Não foi possível copiar: selecione o campo e copie.', 'Could not copy: select the field and copy it.', 'No se pudo copiar: selecciona el campo y cópialo.'))); };
 UIH.netLeave = () => { Net.leave(); U.screen = 'lobby'; };
 ACTIONS.tut = p => { if (S.tutorial < p.n) S.tutorial = p.n; };
 

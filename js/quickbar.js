@@ -50,6 +50,13 @@ UIH.qAudio = () => { const st = Save.data.settings; st.mute = !st.mute; Save.wri
 UIH.qSfx = () => { const st = Save.data.settings; st.sfxOff = !st.sfxOff; Save.write(); };
 UIH.qSettings = () => { if (S && U.screen === 'game') { U.qmenu = !(U.qmenu || U.qset); U.qset = false; U.confirmQuit = false; } else U.screen = 'settings'; };
 UIH.qSettingsOpen = () => { U.qmenu = false; U.qset = true; if (U.panel === 'menu') U.panel = null; };
+// link de convite: ?sala=CODIGO (&srv=endereço do servidor) abre o lobby com o código preenchido
+(function () {
+  try {
+    const q = new URLSearchParams(location.search); const sala = q.get('sala');
+    if (sala) { U.pendingSala = true; U.lobby = { code: sala.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5), url: q.get('srv') || '', ship: 1 }; }
+  } catch (e) { /* link inválido: ignora */ }
+})();
 (function () {
   const _close = UIH.closePanel; UIH.closePanel = function () { if (U.qset) { U.qset = false; return; } if (U.qmenu) { U.qmenu = false; return; } _close(); };
   const _render = renderUI;

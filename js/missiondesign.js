@@ -21,12 +21,7 @@ const INSTRUMENTS = [
   { id: 'camera', name: K('Câmera de mapeamento', 'Mapping camera', 'Cámara de mapeo'), pts: 2, kg: 30, kwh: 0.5, gb: 3, desc: K('Mapeia o local de pouso: o pouso gasta 10 kg a menos de combustível.', 'Maps the landing site: landing uses 10 kg less propellant.', 'Mapea el lugar de aterrizaje: el aterrizaje gasta 10 kg menos de combustible.') },
 ];
 const MAX_INSTR = 3;
-// veículos de lançamento: quanto mais forte, mais massa leva e mais caro
-const LAUNCHERS = [
-  { id: 'leve', name: K('Foguete leve', 'Light rocket', 'Cohete ligero'), pts: 0, lim: 4000, desc: K('Barato, mas leva pouca massa.', 'Cheap, but carries little mass.', 'Barato, pero lleva poca masa.') },
-  { id: 'medio', name: K('Foguete médio', 'Medium rocket', 'Cohete mediano'), pts: 1, lim: 4600, desc: K('Equilíbrio entre custo e carga.', 'Balance between cost and payload.', 'Equilibrio entre costo y carga.') },
-  { id: 'pesado', name: K('Foguete pesado', 'Heavy rocket', 'Cohete pesado'), pts: 4, lim: 5600, desc: K('Leva muito mais, mas custa caro.', 'Carries much more, but costs a lot.', 'Lleva mucho más, pero cuesta caro.') },
-];
+// veículos de lançamento: fonte única em engineering.js (LAUNCHERS)
 // órbita de chegada em Pontes-01b
 const ARRIVAL_ORBITS = [
   { alt: 400, name: K('Baixa (400 km)', 'Low (400 km)', 'Baja (400 km)'), desc: K('Pouso barato, mas o arrasto do ar puxa a nave para baixo.', 'Cheap landing, but air drag pulls the ship down.', 'Aterrizaje barato, pero el arrastre del aire tira de la nave.') },
@@ -39,21 +34,13 @@ if (!ESSENTIALS.some(e => e[1] === 'antena')) ESSENTIALS.push(['upgrades', 'ante
 
 // ---------- escolhas guardadas na montagem ----------
 const sd = st => { st = st || (S && S.setup) || {}; if (!st.objective) st.objective = 'colonia'; if (!st.instruments) st.instruments = []; if (!st.launcher) st.launcher = 'medio'; if (!st.orbitAlt) st.orbitAlt = 800; return st; };
-const launcherOf = st => LAUNCHERS.find(l => l.id === sd(st).launcher) || LAUNCHERS[1];
 {
   const _b = blankSetup; blankSetup = function () { return sd(_b()); };
   const _c = setupCost;
   setupCost = function (st) { sd(st); return _c(st) + st.instruments.reduce((s, id) => s + (INSTRUMENTS.find(i => i.id === id) || { pts: 0 }).pts, 0) + launcherOf(st).pts; };
   // instrumentos contam como itens da nave para has()
   const _h = has; has = function (id) { return _h(id) || !!(S && S.setup && (S.setup.instruments || []).includes(id)); };
-  // massa: instrumentos pesam; o limite é o do foguete escolhido
-  const _m = setupMassInfo;
-  setupMassInfo = function (st) {
-    const m = _m(st); sd(st);
-    const add = st.instruments.reduce((s, id) => s + (INSTRUMENTS.find(i => i.id === id) || { kg: 0 }).kg, 0);
-    m.dry += add; m.total += add; m.dv = Math.round(ISP * G0 * Math.log(m.total / (m.total - m.prop))); m.lim = launcherOf(st).lim;
-    return m;
-  };
+  // massa e limite do foguete escolhido já são calculados por setupMassInfo (engineering.js)
 }
 
 // ---------- números das restrições (calculados da montagem) ----------

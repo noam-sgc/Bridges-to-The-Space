@@ -11,7 +11,14 @@
 'use strict';
 
 const G0 = 9.80665, ISP = 360;          // s — motor químico
-const REF_MASS = 3600, LAUNCH_MAX = 4600; // kg
+const REF_MASS = 3600; // kg
+// veículos de lançamento (fonte única): quanto mais forte, mais massa leva e mais caro
+const LAUNCHERS = [
+  { id: 'leve', name: K('Foguete leve', 'Light rocket', 'Cohete ligero'), pts: 0, lim: 4000, desc: K('Barato, mas leva pouca massa.', 'Cheap, but carries little mass.', 'Barato, pero lleva poca masa.') },
+  { id: 'medio', name: K('Foguete médio', 'Medium rocket', 'Cohete mediano'), pts: 1, lim: 4600, desc: K('Equilíbrio entre custo e carga.', 'Balance between cost and payload.', 'Equilibrio entre costo y carga.') },
+  { id: 'pesado', name: K('Foguete pesado', 'Heavy rocket', 'Cohete pesado'), pts: 4, lim: 5600, desc: K('Leva muito mais, mas custa caro.', 'Carries much more, but costs a lot.', 'Lleva mucho más, pero cuesta caro.') }
+];
+const launcherOf = st => LAUNCHERS.find(l => l.id === ((st && st.launcher) || 'medio')) || LAUNCHERS[1];
 const MASS_STRUCT = 1500, CREW_KG = 6 * 85; // casco, motores, aviônica, suporte à vida + 6 tripulantes
 const ROUTE_DV = { rapida: 650, equilibrada: 450, segura: 380 }; // m/s que a rota pede
 // massa seca dos itens (kg)
@@ -30,6 +37,8 @@ function stHas(st, id) { return ['modules', 'upgrades', 'reserves', 'training', 
 function setupMassInfo(st) {
   let dry = MASS_STRUCT + CREW_KG;
   for (const l of ['modules', 'upgrades', 'reserves', 'gadgets']) for (const id of (st[l] || [])) dry += massOfItem(id);
+  // instrumentos científicos (definidos no Projeto da missão) também pesam
+  for (const id of (st.instruments || [])) dry += ((typeof INSTRUMENTS !== 'undefined' && INSTRUMENTS.find(i => i.id === id)) || { kg: 0 }).kg;
   const curta = S && S.journey === 'curta';
   const days = Math.round((curta ? 12 : 30) * (ROUTES.find(r => r.id === st.route) || ROUTES[1]).days);
   const food = Math.ceil(0.4 * 7 * days * (curta ? 0.93 : 1.08)) + (stHas(st, 'racaoExtra') ? 30 : 0);
@@ -37,7 +46,7 @@ function setupMassInfo(st) {
   const cons = prop + 600 + (stHas(st, 'cisterna') ? 150 : 0) + 90 + (stHas(st, 'cilindros') ? 20 : 0) + food + 40 + (stHas(st, 'sementesEstoque') ? 10 : 0);
   const total = dry + cons;
   const dv = ISP * G0 * Math.log(total / (total - prop));
-  return { dry: Math.round(dry), prop, total: Math.round(total), dv: Math.round(dv), need: ROUTE_DV[st.route] || 450, lim: LAUNCH_MAX };
+  return { dry: Math.round(dry), prop, total: Math.round(total), dv: Math.round(dv), need: ROUTE_DV[st.route] || 450, lim: launcherOf(st).lim };
 }
 const massErr = st => { const m = setupMassInfo(st); return m.total > m.lim ? m : null; };
 // massa atual em voo: a nave fica mais leve conforme gasta combustível, água, ar e comida

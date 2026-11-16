@@ -321,7 +321,7 @@ async function boot() {
     if (document.fullscreenElement) document.exitFullscreen(); else if (g.requestFullscreen) g.requestFullscreen();
   });
   const start = document.getElementById('start');
-  const go = () => { if (start.classList.contains('hide')) return; start.classList.add('hide'); Music.unlock(); Sfx.ensure(); if (!S) storyStart(); };
+  const go = () => { if (start.classList.contains('hide')) return; start.classList.add('hide'); Music.unlock(); Sfx.ensure(); if (U.pendingSala) { U.pendingSala = false; U.screen = 'lobby'; return; } if (!S) storyStart(); };
   start.addEventListener('pointerdown', go); start.addEventListener('keydown', go);
   document.querySelectorAll('[data-crew-sprite]').forEach(img => { const r = ROLES[+img.dataset.crewSprite]; img.src = spriteURL(Object.assign(randomAvatar(() => ((+img.dataset.crewSprite + 1) * 0.137) % 1), { suit: 0 }), 'suit', 'happy', 3); img.alt = r ? r.name : ''; });
   document.querySelectorAll('[data-sprite]').forEach(img => { img.src = spriteURL(DEFAULT_AVATAR, img.dataset.sprite, 'happy', 4); });
